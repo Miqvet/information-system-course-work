@@ -1,29 +1,28 @@
 package itmo.course.coursework.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
 @Entity
-@NoArgsConstructor
-@Table(name = "notification")
+@Getter @Setter
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notification_id_serial")
-    private Long id;
-    
+    @Column
+    private Long notificationId;
+
     @Column(nullable = false)
     private String title;
-    
+
     @Column(columnDefinition = "text")
     private String description;
-    
-    @Column(name = "user_task_id", nullable = false)
-    private Integer userTaskId;
-    
+
+    @ManyToOne(optional = false)
+    private UserTask userTask;
+
+    @Column(nullable = false)
     private LocalDateTime date;
 } 

@@ -1,24 +1,19 @@
 package itmo.course.coursework.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
 @Entity
-@NoArgsConstructor
-@Table(name = "reward")
+@Getter @Setter
 public class Reward {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reward_id_serial")
-    private Long id;
-    
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private Long rewardId;
+
     @Column(nullable = false)
     private String name;
-    
+
     @Column(columnDefinition = "text")
     private String description;
-    
-    private String icon;
-} 
+}

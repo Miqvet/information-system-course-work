@@ -1,41 +1,43 @@
 package itmo.course.coursework.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.Set;
+import java.util.List;
 
-@Data
-@Entity
-@NoArgsConstructor
-@Table(name = "user")
+
+@Entity @Table(name = "User_")
+@Getter @Setter
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id_serial")
-    private Long id;
-    
-    @Column(nullable = false, unique = true)
-    private String email;
-    
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-    
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
-    
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
+    private Long userId;
+
+    @Column(nullable = false, unique = true)
+    @Email
+    private String email;
+
+    @Column(nullable = false)
+    @Size(min = 8)
     private String password;
-    
-    @OneToMany(mappedBy = "user")
-    private Set<UserTask> userTasks;
-    
-    @ManyToMany
-    @JoinTable(
-        name = "group_user",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
-    private Set<Group> groups;
-} 
+
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserTask> userTasks;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<GroupUser> groupUsers;
+
+    @Override
+    public String toString() {
+        return firstName + " " + lastName;
+    }
+}

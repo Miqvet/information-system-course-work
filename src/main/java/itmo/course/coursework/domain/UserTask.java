@@ -1,32 +1,27 @@
 package itmo.course.coursework.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
 @Entity
-@NoArgsConstructor
-@Table(name = "user_task")
+@Getter @Setter
 public class UserTask {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_task_id_serial")
-    private Long id;
-    
-    @ManyToOne
-    @JoinColumn(name = "task_id", nullable = false)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private Long userTaskId;
+
+    @ManyToOne(optional = false)
     private Task task;
-    
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+
+    @ManyToOne(optional = false)
     private User user;
-    
-    @Column(name = "assigned_date")
+
+    @Column(nullable = false)
     private LocalDateTime assignedDate;
-    
-    @Column(name = "completion_status")
+
+    @Column(nullable = false)
     private Boolean completionStatus = false;
 } 
