@@ -8,8 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
 @Getter @Setter
+@Entity @Table(name = "Group_")
 public class Group {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
@@ -28,6 +28,6 @@ public class Group {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GroupUser> groupUsers;
 } 
