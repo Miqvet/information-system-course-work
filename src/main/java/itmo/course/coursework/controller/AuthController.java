@@ -3,6 +3,7 @@ package itmo.course.coursework.controller;
 import itmo.course.coursework.domain.User;
 import itmo.course.coursework.dto.request.UserRegistrationRequest;
 import itmo.course.coursework.dto.request.UserSignInRequest;
+import itmo.course.coursework.dto.response.AuthResponse;
 import itmo.course.coursework.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +21,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody UserRegistrationRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+        return ResponseEntity.ok(authService.registerUser(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserSignInRequest request) {
-        authService.authenticate(request);
-        return ResponseEntity.ok("Successfully authenticated");
+    public ResponseEntity<AuthResponse> login(@RequestBody UserSignInRequest request) {
+        String token = authService.authenticateUser(request);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 } 

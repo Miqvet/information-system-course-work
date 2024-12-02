@@ -3,24 +3,22 @@ package itmo.course.coursework.service;
 import itmo.course.coursework.domain.User;
 import itmo.course.coursework.dto.request.UserRegistrationRequest;
 import itmo.course.coursework.dto.request.UserSignInRequest;
-import itmo.course.coursework.repository.UserRepository;
+import itmo.course.coursework.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    @Transactional
-    public User register(UserRegistrationRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("User already exists");
+    public User registerUser(UserRegistrationRequest request) {
+        if (userService.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Пользователь с таким email уже существует");
         }
 
         User user = new User();
@@ -29,15 +27,17 @@ public class AuthService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
 
-        return userRepository.save(user);
+        return userService.saveUser(user);
     }
-    @Transactional
-    public void authenticate(UserSignInRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-            .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+
+    public String authenticateUser(UserSignInRequest request) {
+        User user = userService.findByEmail(request.getEmail())
+                .orElseThrow(() -> new BadCredentialsException("Неверные учетные данные"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid credentials");
+            throw new BadCredentialsException("Неверные учетные данные");
         }
+
+        return jwtUtil.generateToken(user);
     }
 } 
