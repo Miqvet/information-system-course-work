@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/secured")
 public class SecuredController {
-
     @GetMapping("/test")
     public ResponseEntity<String> securedEndpoint() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
