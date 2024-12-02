@@ -1,4 +1,4 @@
-package itmo.course.coursework.exception;
+package itmo.course.coursework.dto.response;
 
 import lombok.Builder;
 import lombok.Data;
