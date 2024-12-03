@@ -70,7 +70,7 @@ public class GroupService {
         return groupUserRepository.findAllByUser(user);
     }
 
-    public boolean existsGroupUserByGroupAndUser(Group group, User user) {
+    public boolean isUserInGroup(Group group, User user) {
         return groupUserRepository.existsGroupUserByGroupAndUser(group, user);
     }
 }

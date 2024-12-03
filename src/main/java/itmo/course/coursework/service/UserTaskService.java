@@ -26,7 +26,7 @@ public class UserTaskService {
         Task task = taskService.getTaskById(taskId);
         User user = userService.getUserById(userId);
         
-        if (!groupService.existsGroupUserByGroupAndUser(task.getGroup(), user)) {
+        if (!groupService.isUserInGroup(task.getGroup(), user)) {
             throw new BadRequestException("Пользователь не является членом группы задачи");
         }
         

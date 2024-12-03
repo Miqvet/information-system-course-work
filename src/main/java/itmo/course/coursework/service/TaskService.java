@@ -2,16 +2,10 @@ package itmo.course.coursework.service;
 
 import itmo.course.coursework.domain.Category;
 import itmo.course.coursework.domain.Task;
-import itmo.course.coursework.domain.User;
-import itmo.course.coursework.domain.UserTask;
 import itmo.course.coursework.dto.request.TaskCreateRequest;
 import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.repository.TaskRepository;
-import itmo.course.coursework.repository.UserRepository;
-import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import itmo.course.coursework.domain.Group;
@@ -42,7 +36,7 @@ public class TaskService {
         validateTaskRequest(request);
         
         Group group = groupService.findGroupById(request.getGroupId());
-        if (!groupService.existsGroupUserByGroupAndUser(group, userService.getUserById(request.getAssignedUserId()))) {
+        if (!groupService.isUserInGroup(group, userService.getUserById(request.getAssignedUserId()))) {
             throw new BadRequestException("Вы не являетесь членом этой группы");
         }
 

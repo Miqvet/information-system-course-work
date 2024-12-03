@@ -26,7 +26,7 @@ public class CommentService {
         User user = userService.findByEmail(userEmail);
 
         // Проверяем, является ли пользователь членом группы
-        if (!groupService.existsGroupUserByGroupAndUser(task.getGroup(), user)) {
+        if (!groupService.isUserInGroup(task.getGroup(), user)) {
             throw new BadRequestException("Вы не можете комментировать задачи в этой группе");
         }
 
