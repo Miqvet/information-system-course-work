@@ -15,4 +15,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByCategory(Category category);
     List<Task> findByIsCompletedAndIsRepeatedTrue(Boolean isCompleted);
     Page<Task> findByDeadlineBetweenOrderByDeadlineAsc(LocalDateTime start, LocalDateTime end, Pageable pageable);
+    List<Task> findByDeadlineBefore(LocalDateTime dateTime);
 } 

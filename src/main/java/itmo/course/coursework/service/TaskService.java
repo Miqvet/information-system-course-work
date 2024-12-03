@@ -56,9 +56,9 @@ public class TaskService {
     public UserTask assignTaskToUser(Task task, Long userId, Long groupId) {
         // Проверяем, что пользователь существует и находится в группе
         User user = userService.getUserById(userId);
-        if (!groupService.isUserInGroup(userId, groupId)) {
-            throw new BadRequestException("Пользователь не является членом группы");
-        }
+//        if (!groupService.isUserInGroup(userId, groupId)) {
+//            throw new BadRequestException("Пользователь не является членом группы");
+//        }
 
         UserTask userTask = new UserTask();
         userTask.setTask(task);

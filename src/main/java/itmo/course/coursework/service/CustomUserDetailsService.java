@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    @Cacheable(value = CacheConfig.USER_CACHE, key = "#email")
+//    @Cacheable(value = CacheConfig.USER_CACHE, key = "#email")
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
@@ -33,11 +33,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
 
-    @CacheEvict(value = CacheConfig.USER_CACHE, key = "#email")
+//    @CacheEvict(value = CacheConfig.USER_CACHE, key = "#email")
     public void evictUserFromCache(String email) {
     }
 
-    @CachePut(value = CacheConfig.USER_CACHE, key = "#user.email")
+//    @CachePut(value = CacheConfig.USER_CACHE, key = "#user.email")
     public UserDetails updateUser(User user) {
         return userRepository.save(user);
     }
