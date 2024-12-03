@@ -1,5 +1,6 @@
 package itmo.course.coursework.service;
 
+import itmo.course.coursework.domain.Category;
 import itmo.course.coursework.domain.Task;
 import itmo.course.coursework.domain.User;
 import itmo.course.coursework.domain.UserTask;
@@ -13,7 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import itmo.course.coursework.domain.Group;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,72 +23,8 @@ import java.util.List;
 public class TaskService {
     private final TaskRepository taskRepository;
 
-    private final UserTaskRepository userTaskRepository;
-
     private final GroupService groupService;
     private final UserService userService;
-    private final UserRepository userRepository;
-
-    @Transactional
-    public Task createTask(TaskCreateRequest request, Long groupId) {
-        validateTaskRequest(request);
-        
-        Task task = new Task();
-        task.setTitle(request.getTitle());
-        task.setDescription(request.getDescription());
-        task.setCurrentPriority(request.getCurrentPriority());
-        task.setDeadline(request.getDeadline());
-        task.setCategory(request.getCategory());
-        task.setIsCompleted(false);
-        task.setIsRepeated(request.getIsRepeated());
-        task.setRepeatedPeriod(request.getRepeatedPeriod());
-        
-        Task savedTask = taskRepository.save(task);
-
-        // Если указан пользователь для назначения
-        if (request.getAssignedUserId() != null) {
-            assignTaskToUser(savedTask, request.getAssignedUserId(), groupId);
-        }
-
-        return savedTask;
-    }
-
-    @Transactional
-    public UserTask assignTaskToUser(Task task, Long userId, Long groupId) {
-        // Проверяем, что пользователь существует и находится в группе
-        User user = userService.getUserById(userId);
-//        if (!groupService.isUserInGroup(userId, groupId)) {
-//            throw new BadRequestException("Пользователь не является членом группы");
-//        }
-
-        UserTask userTask = new UserTask();
-        userTask.setTask(task);
-        userTask.setUser(user);
-        userTask.setAssignedDate(LocalDateTime.now());
-        userTask.setCompletionStatus(false);
-
-        return userTaskRepository.save(userTask);
-    }
-
-    @Transactional
-    public Task completeTask(Long taskId, Long userId) {
-        Task task = taskRepository.findById(taskId)
-            .orElseThrow(() -> new BadRequestException("Задача не найдена"));
-
-        UserTask userTask = userTaskRepository.findUserTaskByUserAndTask(userRepository.findById(userId).get(),task)
-            .orElseThrow(() -> new BadRequestException("Задача не назначена данному пользователю"));
-
-        userTask.setCompletionStatus(true);
-        task.setIsCompleted(true);
-
-        userTaskRepository.save(userTask);
-        return taskRepository.save(task);
-    }
-
-    public Page<Task> getTasksByDeadlinePeriod(LocalDateTime start, LocalDateTime end, Pageable pageable) {
-        return taskRepository.findByDeadlineBetweenOrderByDeadlineAsc(start, end, pageable);
-    }
-
     private void validateTaskRequest(TaskCreateRequest request) {
         if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
             throw new BadRequestException("Название задачи обязательно");
@@ -98,5 +35,74 @@ public class TaskService {
         if (request.getDeadline() != null && request.getDeadline().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("Дедлайн не может быть в прошлом");
         }
+    }
+
+    @Transactional
+    public Task createTask(TaskCreateRequest request) {
+        validateTaskRequest(request);
+        
+        Group group = groupService.findGroupById(request.getGroupId());
+        if (!groupService.existsGroupUserByGroupAndUser(group, userService.getUserById(request.getAssignedUserId()))) {
+            throw new BadRequestException("Вы не являетесь членом этой группы");
+        }
+
+        Task task = new Task();
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setCurrentPriority(request.getCurrentPriority());
+        task.setDeadline(request.getDeadline());
+        task.setIsRepeated(request.getIsRepeated() != null ? request.getIsRepeated() : false);
+        task.setRepeatedPeriod(request.getRepeatedPeriod());
+        task.setCategory(request.getCategory());
+        task.setGroup(group);
+
+        return taskRepository.save(task);
+    }
+
+    public Task getTaskById(Long id) {
+        return taskRepository.findById(id)
+            .orElseThrow(() -> new BadRequestException("Задача не найдена"));
+    }
+
+    public List<Task> getTasksByCategory(Category category) {
+        return taskRepository.findByCategory(category);
+    }
+
+    @Transactional
+    public Task updateTask(Long id, TaskCreateRequest request) {
+        Task task = getTaskById(id);
+
+        if (request.getTitle() != null) {
+            task.setTitle(request.getTitle());
+        }
+        if (request.getDescription() != null) {
+            task.setDescription(request.getDescription());
+        }
+        if (request.getCurrentPriority() != null) {
+            task.setCurrentPriority(request.getCurrentPriority());
+        }
+        if (request.getDeadline() != null) {
+            if (request.getDeadline().isBefore(LocalDateTime.now())) {
+                throw new BadRequestException("Дедлайн не может быть в прошлом");
+            }
+            task.setDeadline(request.getDeadline());
+        }
+        if (request.getIsRepeated() != null) {
+            task.setIsRepeated(request.getIsRepeated());
+        }
+        if (request.getRepeatedPeriod() != null) {
+            task.setRepeatedPeriod(request.getRepeatedPeriod());
+        }
+
+        return taskRepository.save(task);
+    }
+
+    public void deleteTask(Long id) {
+        taskRepository.deleteById(id);
+    }
+
+    public List<Task> getTasksByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
+        return taskRepository.findByUserTasksUserUserIdAndDeadlineBetweenOrderByDeadlineAsc(
+            userId, start, end);
     }
 } 

@@ -30,9 +30,6 @@ public class Task {
     @Column(nullable = false)
     private Integer currentPriority;
 
-    @Column(nullable = false)
-    private Boolean isCompleted = false;
-
     @Column
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -45,4 +42,7 @@ public class Task {
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserTask> userTasks;
+
+    @ManyToOne(optional = false)
+    private Group group;
 } 

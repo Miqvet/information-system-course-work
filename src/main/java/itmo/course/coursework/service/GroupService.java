@@ -24,6 +24,10 @@ public class GroupService {
     private final GroupUserRepository groupUserRepository;
     private final UserRepository userRepository;
 
+    public Group findGroupById(long id) {
+        return groupRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Неизвестная группа"));
+    }
     public Group createGroup(GroupCreateRequest request) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 

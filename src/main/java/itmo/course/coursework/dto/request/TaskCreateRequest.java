@@ -15,4 +15,5 @@ public class TaskCreateRequest {
     private Integer repeatedPeriod;
     private Category category;
     private Long assignedUserId;
+    private Long groupId;
 } 
