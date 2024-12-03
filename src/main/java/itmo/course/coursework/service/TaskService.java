@@ -1,6 +1,7 @@
 package itmo.course.coursework.service;
 
 import itmo.course.coursework.domain.Category;
+import itmo.course.coursework.domain.Group;
 import itmo.course.coursework.domain.Task;
 import itmo.course.coursework.dto.request.TaskCreateRequest;
 import itmo.course.coursework.exception.BadRequestException;
@@ -8,7 +9,7 @@ import itmo.course.coursework.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import itmo.course.coursework.domain.Group;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class TaskService {
 
     private final GroupService groupService;
     private final UserService userService;
+
     private void validateTaskRequest(TaskCreateRequest request) {
         if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
             throw new BadRequestException("Название задачи обязательно");
@@ -34,7 +36,7 @@ public class TaskService {
     @Transactional
     public Task createTask(TaskCreateRequest request) {
         validateTaskRequest(request);
-        
+
         Group group = groupService.findGroupById(request.getGroupId());
         if (!groupService.isUserInGroup(group, userService.getUserById(request.getAssignedUserId()))) {
             throw new BadRequestException("Вы не являетесь членом этой группы");
@@ -55,7 +57,7 @@ public class TaskService {
 
     public Task getTaskById(Long id) {
         return taskRepository.findById(id)
-            .orElseThrow(() -> new BadRequestException("Задача не найдена"));
+                .orElseThrow(() -> new BadRequestException("Задача не найдена"));
     }
 
     public List<Task> getTasksByCategory(Category category) {
@@ -96,7 +98,6 @@ public class TaskService {
     }
 
     public List<Task> getTasksByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
-        return taskRepository.findByUserTasksUserUserIdAndDeadlineBetweenOrderByDeadlineAsc(
-            userId, start, end);
+        return taskRepository.findByUserTasksUserUserIdAndDeadlineBetweenOrderByDeadlineAsc(userId, start, end);
     }
 } 
