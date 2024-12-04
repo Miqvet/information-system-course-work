@@ -85,45 +85,18 @@ public class UserTaskService {
         return userTaskRepository.findAllByTask(task);
     }
 
-
-     @Transactional
+    @Transactional
     public boolean assignTaskToUserByFunction(Long taskId, Long userId, Integer priority) {
         return userTaskRepository.assignTaskToUser(taskId, userId, priority);
     }
 
     @Transactional(readOnly = true)
     public List<TaskDTO> getUserTasksByFunction(Long userId, Boolean completed, Integer priority) {
-        List<Object[]> results = userTaskRepository.getUserTasksByFunction(userId, completed, priority);
-        return results.stream()
-            .map(this::mapToTaskDTO)
-            .collect(Collectors.toList());
+        return userTaskRepository.getUserTasksByFunction(userId, completed, priority);
     }
 
     @Transactional(readOnly = true)
     public TaskStatisticsDTO getUserTaskStatistics(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
-        Object[] result = userTaskRepository.getUserTaskStatistics(userId, startDate, endDate);
-        return mapToTaskStatisticsDTO(result);
+        return userTaskRepository.getUserTaskStatistics(userId, startDate, endDate).getFirst();
     }
-
-    private TaskDTO mapToTaskDTO(Object[] result) {
-        return TaskDTO.builder()
-            .id(((Number) result[0]).longValue())
-            .title((String) result[1])
-            .description((String) result[2])
-            .currentPriority(((Number) result[3]).intValue())
-            .deadline((LocalDateTime) result[4])
-            .isCompleted((Boolean) result[5])
-            .build();
-    }
-
-    private TaskStatisticsDTO mapToTaskStatisticsDTO(Object[] result) {
-        return TaskStatisticsDTO.builder()
-            .totalTasks(((Number) result[0]).longValue())
-            .completedTasks(((Number) result[1]).longValue())
-            .completionRate(((Number) result[2]).doubleValue())
-            .highPriorityTasks(((Number) result[3]).longValue())
-            .build();
-    }
-
-
 } 

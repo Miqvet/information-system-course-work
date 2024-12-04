@@ -3,10 +3,13 @@ package itmo.course.coursework.service;
 import itmo.course.coursework.domain.Category;
 import itmo.course.coursework.domain.Group;
 import itmo.course.coursework.domain.Task;
+import itmo.course.coursework.domain.UserTask;
 import itmo.course.coursework.dto.request.TaskCreateRequest;
 import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.repository.TaskRepository;
+import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ public class TaskService {
 
     private final GroupService groupService;
     private final UserService userService;
+    private final UserTaskRepository userTaskRepository;
 
     private void validateTaskRequest(TaskCreateRequest request) {
         if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
@@ -99,5 +103,22 @@ public class TaskService {
 
     public List<Task> getTasksByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
         return taskRepository.findByUserTasksUserIdAndDeadlineBetweenOrderByDeadlineAsc(userId, start, end);
+    }
+
+    @Scheduled(fixedRate = 300000)
+    public void updateRepeatableTasks() {
+        List<Task> tasks = taskRepository.findByIsCompletedFalseAndIsRepeatedTrue();
+        for (Task task : tasks) {
+            for (UserTask userTask : task.getUserTasks()) {
+                if (userTask.getAssignedDate().isBefore(LocalDateTime.now().minusDays(task.getRepeatedPeriod()))) {
+                    UserTask newUserTask = new UserTask();
+                    newUserTask.setUser(userTask.getUser());
+                    newUserTask.setTask(userTask.getTask());
+                    newUserTask.setCompletionStatus(false);
+                    newUserTask.setAssignedDate(LocalDateTime.now());
+                    userTaskRepository.save(newUserTask);
+                }
+            }
+        }
     }
 } 
