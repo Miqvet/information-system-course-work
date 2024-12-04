@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UserTaskRepository extends JpaRepository<UserTask, Long> {
@@ -27,19 +28,13 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Long> {
                              @Param("userId") Long userId,
                              @Param("priority") Integer priority);
 
-    @Query(value = """
-            SELECT new TaskDTO(t.id, t.title, t.description, t.current_priority, t.deadline, t.is_completed)
-            FROM get_user_tasks(:userId, :completed, :priority) t
-            """, nativeQuery = true)
-    List<TaskDTO> getUserTasksByFunction(@Param("userId") Long userId,
-                                     @Param("completed") Boolean completed,
-                                     @Param("priority") Integer priority);
+    @Query(value = "SELECT t.task_id, t.title, t.description, t.current_priority currentPriority, t.deadline, t.is_completed isCompleted FROM get_user_tasks(:userId, :completed, :priority) t", nativeQuery = true)
+    List<Map<String, Object>> getUserTasksByFunction(@Param("userId") Long userId,
+                                                     @Param("completed") Boolean completed,
+                                                     @Param("priority") Integer priority);
 
-    @Query(value = """
-            SELECT new TaskStatisticsDTO(s.total_tasks, s.completed_tasks, s.completion_rate, s.high_priority_tasks)
-            FROM get_user_task_statistics(:userId, :startDate, :endDate) s
-            """, nativeQuery = true)
-    List<TaskStatisticsDTO> getUserTaskStatistics(@Param("userId") Long userId,
+    @Query(value = "SELECT s.total_tasks totalTasks, s.completed_tasks completedStatus, s.completion_rate completionRate, s.high_priority_tasks highPriorityTasks FROM get_user_task_statistics(:userId, :startDate, :endDate) s", nativeQuery = true)
+    List<Map<String, Object>> getUserTaskStatistics(@Param("userId") Long userId,
                                               @Param("startDate") LocalDateTime startDate,
                                               @Param("endDate") LocalDateTime endDate);
 } 

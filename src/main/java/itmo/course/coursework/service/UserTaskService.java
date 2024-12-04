@@ -11,10 +11,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -92,11 +95,16 @@ public class UserTaskService {
 
     @Transactional(readOnly = true)
     public List<TaskDTO> getUserTasksByFunction(Long userId, Boolean completed, Integer priority) {
-        return userTaskRepository.getUserTasksByFunction(userId, completed, priority);
+        var tasks = new ArrayList<TaskDTO>();
+        var results = userTaskRepository.getUserTasksByFunction(userId, completed, priority);
+        for (var result : results)
+            tasks.add(new TaskDTO((Long) result.get("task_id"), (String) result.get("title"), (String) result.get("description"), (Integer) result.get("currentPriority"), ((Timestamp) result.get("deadline")).toLocalDateTime(), (Boolean) result.get("isCompleted")));
+        return tasks;
     }
 
     @Transactional(readOnly = true)
     public TaskStatisticsDTO getUserTaskStatistics(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
-        return userTaskRepository.getUserTaskStatistics(userId, startDate, endDate).getFirst();
+        var result = userTaskRepository.getUserTaskStatistics(userId, startDate, endDate).get(0);
+        return new TaskStatisticsDTO((Long) result.get("totalTasks"), (Long) result.get("completedTasks"), ((BigDecimal) result.get("completionRate")).doubleValue(), (Long) result.get("highPriorityTasks"));
     }
-} 
+}
