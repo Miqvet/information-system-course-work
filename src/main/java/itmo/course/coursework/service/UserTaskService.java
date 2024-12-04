@@ -39,7 +39,7 @@ public class UserTaskService {
             throw new BadRequestException("Пользователь не является членом группы задачи");
         }
         if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN , user, task.getGroup())) {
-            throw new BadRequestException("Создавать задачи может только админ группы");
+            throw new BadRequestException("Назначать задачи может только админ группы");
         }
 
 

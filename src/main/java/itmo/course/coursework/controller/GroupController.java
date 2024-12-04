@@ -63,4 +63,9 @@ public class GroupController {
     public ResponseEntity<Group> getGroupById(@PathVariable Long groupId) {
         return ResponseEntity.ok(groupService.findGroupById(groupId));
     }
+
+    @DeleteMapping("/delete/{groupId}")
+    public ResponseEntity<Boolean> deleteGroupById(@PathVariable Long groupId) {
+        return ResponseEntity.ok(groupService.deleteGroupById(groupId));
+    }
 } 

@@ -73,4 +73,17 @@ public class GroupService {
     public boolean isUserInGroup(Group group, User user) {
         return groupUserRepository.existsGroupUserByGroupAndUser(group, user);
     }
+
+    public boolean deleteGroupById(Long groupId) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow();
+
+        if (groupUserRepository.existsByRoleAndUserAndGroupId(GroupUserRole.ADMIN, user, groupId))
+            throw new IllegalArgumentException("Вы не админ!!!!!");
+        if (groupUserRepository.existsGroupUserByGroupId(groupId))
+            throw new IllegalArgumentException("В группе остались пользователи");
+
+        groupUserRepository.deleteById(groupId);
+        return true;
+    }
 }
