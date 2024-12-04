@@ -1,8 +1,6 @@
 package itmo.course.coursework.controller;
 
 import itmo.course.coursework.domain.*;
-import itmo.course.coursework.repository.GroupUserRepository;
-import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +25,6 @@ public class TaskController {
     private final TaskService taskService;
     private final UserTaskService userTaskService;
     private final GroupService groupService;
-    private final UserTaskRepository userTaskRepository;
-    private final GroupUserRepository groupUserRepository;
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<TaskDTO>> getUserTasks(
@@ -92,15 +88,6 @@ public class TaskController {
     public ResponseEntity<Boolean> deleteUserTask(
             @PathVariable Long taskId,
             @PathVariable Long userId) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userService.findByEmail(userEmail);
-
-        UserTask userTask = userTaskService.getUserTask(taskId, userId);
-        if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, userTask.getTask().getGroup())) {
-            throw new BadRequestException("Только администратор группы может удалять задачи");
-        }
-
-        userTaskRepository.delete(userTask);
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(userTaskService.deleteUserTask(taskId, userId));
     }
 } 

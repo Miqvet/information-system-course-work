@@ -26,25 +26,13 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (userRepository.count() > 0) {
-            return; // Пропускаем инициализацию, если данные уже существуют
+            return;
         }
-
-        // Создаем пользователей
         List<User> users = createUsers();
-        
-        // Создаем категории
         List<Category> categories = createCategories();
-        
-        // Создаем группы
         List<Group> groups = createGroups(users.get(0));
-        
-        // Добавляем пользователей в группы
         addUsersToGroups(users, groups);
-        
-        // Создаем задачи
         createTasks(categories, groups, users);
-        
-        // Создаем награды
         createRewards(users);
     }
 
@@ -123,8 +111,6 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         tasks = taskRepository.saveAll(tasks);
-
-        // Назначаем задачи пользователям
         for (int i = 0; i < tasks.size(); i++) {
             UserTask userTask = new UserTask();
             userTask.setTask(tasks.get(i));

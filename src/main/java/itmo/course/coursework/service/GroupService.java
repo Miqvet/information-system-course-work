@@ -8,12 +8,15 @@ import itmo.course.coursework.dto.request.FindAllGroupMembersRequest;
 import itmo.course.coursework.dto.request.FindAllUserGroupsRequest;
 import itmo.course.coursework.dto.request.GroupCreateRequest;
 import itmo.course.coursework.dto.request.AddGroupMemberRequest;
+import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.repository.GroupRepository;
 import itmo.course.coursework.repository.GroupUserRepository;
 import itmo.course.coursework.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -23,6 +26,7 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupUserRepository groupUserRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     public Group findGroupById(long id) {
         return groupRepository.findById(id)
@@ -85,5 +89,16 @@ public class GroupService {
 
         groupUserRepository.deleteById(groupId);
         return true;
+    }
+    public boolean deleteMember(Long groupId, Long userId){
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+        Group group = findGroupById(groupId);
+
+        if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, group)) {
+            throw new BadRequestException("Только администратор группы может удалять участников");
+        }
+
+        return groupUserRepository.deleteGroupUserByGroupAndUserId(group, userId);
     }
 }

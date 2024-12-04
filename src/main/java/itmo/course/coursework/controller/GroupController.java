@@ -2,15 +2,12 @@ package itmo.course.coursework.controller;
 
 import itmo.course.coursework.domain.Group;
 import itmo.course.coursework.domain.GroupUser;
-import itmo.course.coursework.domain.GroupUserRole;
 import itmo.course.coursework.domain.User;
 import itmo.course.coursework.dto.request.AddGroupMemberRequest;
 import itmo.course.coursework.dto.request.FindAllGroupMembersRequest;
 import itmo.course.coursework.dto.request.FindAllUserGroupsRequest;
 import itmo.course.coursework.dto.request.GroupCreateRequest;
 import itmo.course.coursework.exception.BadRequestException;
-import itmo.course.coursework.repository.GroupRepository;
-import itmo.course.coursework.repository.GroupUserRepository;
 import itmo.course.coursework.service.GroupService;
 import itmo.course.coursework.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +23,6 @@ import java.util.List;
 public class GroupController {
     private final GroupService groupService;
     private final UserService userService;
-    private final GroupUserRepository groupUserRepository;
-    private final GroupRepository groupRepository;
 
     @PostMapping
     public ResponseEntity<Group> createGroup(@RequestBody GroupCreateRequest request) {
@@ -78,14 +73,6 @@ public class GroupController {
     public ResponseEntity<Boolean> deleteMember(
             @PathVariable Long groupId,
             @PathVariable Long userId) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userService.findByEmail(userEmail);
-        Group group = groupService.findGroupById(groupId);
-
-        if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, group)) {
-            throw new BadRequestException("Только администратор группы может удалять участников");
-        }
-
-        return ResponseEntity.ok(groupUserRepository.deleteGroupUserByGroupAndUserId(group, userId));
+        return ResponseEntity.ok(groupService.deleteMember(groupId, userId));
     }
 } 

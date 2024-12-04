@@ -10,6 +10,8 @@ import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.repository.GroupUserRepository;
 import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -112,5 +114,18 @@ public class UserTaskService {
     public TaskStatisticsDTO getUserTaskStatistics(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
         var result = userTaskRepository.getUserTaskStatistics(userId, startDate, endDate).get(0);
         return new TaskStatisticsDTO((Long) result.get("totalTasks"), (Long) result.get("completedTasks"), ((BigDecimal) result.get("completionRate")).doubleValue(), (Long) result.get("highPriorityTasks"));
+    }
+
+    public boolean deleteUserTask(Long taskId, Long userId){
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+
+        UserTask userTask = getUserTask(taskId, userId);
+        if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, userTask.getTask().getGroup())) {
+            throw new BadRequestException("Только администратор группы может удалять задачи");
+        }
+
+        userTaskRepository.delete(userTask);
+        return true;
     }
 }
