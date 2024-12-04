@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class UserTask {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long userTaskId;
+    private Long id;
 
     @ManyToOne(optional = false)
     private Task task;

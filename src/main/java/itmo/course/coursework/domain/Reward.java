@@ -9,7 +9,7 @@ import lombok.Setter;
 public class Reward {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long rewardId;
+    private Long id;
 
     @Column(nullable = false)
     private String name;

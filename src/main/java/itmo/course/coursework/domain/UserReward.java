@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class UserReward {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long userRewardId;
+    private Long id;
 
     @ManyToOne(optional = false)
     private Reward reward;

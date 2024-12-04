@@ -58,7 +58,7 @@ public class UserTaskService {
     public UserTask updateTaskStatus(Long taskId, Long userId, boolean completionStatus) {
         UserTask userTask = getUserTask(taskId, userId);
         
-        if (!userTask.getUser().getUserId().equals(userId)) {
+        if (!userTask.getUser().getId().equals(userId)) {
             throw new BadRequestException("Только назначенный пользователь может изменить статус задачи");
         }
         

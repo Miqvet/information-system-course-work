@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class Category {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long categoryId;
+    private Long id;
 
     @Column(nullable = false)
     private String name;

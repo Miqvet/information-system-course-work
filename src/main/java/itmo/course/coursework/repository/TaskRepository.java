@@ -13,7 +13,7 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByCategory(Category category);
 
-    List<Task> findByUserTasksUserUserIdAndDeadlineBetweenOrderByDeadlineAsc(Long userId, LocalDateTime start, LocalDateTime end);
+    List<Task> findByUserTasksUserIdAndDeadlineBetweenOrderByDeadlineAsc(Long userId, LocalDateTime start, LocalDateTime end);
 
     List<Task> findByGroupAndDeadlineBetweenOrderByDeadlineAsc(Group group, LocalDateTime start, LocalDateTime end);
 

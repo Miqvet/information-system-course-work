@@ -43,7 +43,7 @@ public class NotificationService {
         String subject = "Приближается дедлайн задачи!";
         String message = String.format(
                 "Уважаемый %s,\n\nЗадача \"%s\" (ID: %d) должна быть выполнена к %s.\nПожалуйста, обратите внимание!\n\nС уважением,\nКоманда проекта",
-                user.getFirstName(), task.getTitle(), task.getTaskId(), task.getDeadline().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
+                user.getFirstName(), task.getTitle(), task.getId(), task.getDeadline().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
         );
 
         Notification notification = new Notification();

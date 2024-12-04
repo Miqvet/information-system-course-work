@@ -98,6 +98,6 @@ public class TaskService {
     }
 
     public List<Task> getTasksByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
-        return taskRepository.findByUserTasksUserUserIdAndDeadlineBetweenOrderByDeadlineAsc(userId, start, end);
+        return taskRepository.findByUserTasksUserIdAndDeadlineBetweenOrderByDeadlineAsc(userId, start, end);
     }
 } 

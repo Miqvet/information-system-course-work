@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class Comment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long commentId;
+    private Long id;
 
     @ManyToOne(optional = false)
     private Task task;

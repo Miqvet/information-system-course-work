@@ -34,7 +34,7 @@ public class TaskController {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByEmail(userEmail);
         
-        return ResponseEntity.ok(taskService.getTasksByDateRange(currentUser.getUserId(), start, end));
+        return ResponseEntity.ok(taskService.getTasksByDateRange(currentUser.getId(), start, end));
     }
 
     @PutMapping("/{taskId}/complete")
@@ -42,7 +42,7 @@ public class TaskController {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByEmail(userEmail);
         
-        return ResponseEntity.ok(userTaskService.updateTaskStatus(taskId, currentUser.getUserId(), true));
+        return ResponseEntity.ok(userTaskService.updateTaskStatus(taskId, currentUser.getId(), true));
     }
 
     @PostMapping("/{taskId}/assign/{userId}")

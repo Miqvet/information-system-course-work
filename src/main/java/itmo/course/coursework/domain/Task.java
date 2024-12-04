@@ -13,7 +13,7 @@ import java.util.List;
 public class Task {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long taskId;
+    private Long id;
 
     @ManyToOne(optional = false)
     private Category category;
@@ -36,6 +36,9 @@ public class Task {
 
     @Column(nullable = false)
     private Boolean isRepeated = false;
+
+    @Column(nullable = false)
+    private Boolean isCompleted = false;
 
     @Column
     private Integer repeatedPeriod;

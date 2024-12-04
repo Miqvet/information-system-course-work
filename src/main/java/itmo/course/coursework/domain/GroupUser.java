@@ -10,7 +10,7 @@ public class GroupUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long groupUserId;
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

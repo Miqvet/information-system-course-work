@@ -12,7 +12,7 @@ public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long notificationId;
+    private Long id;
 
     @Column(nullable = false)
     private String title;
