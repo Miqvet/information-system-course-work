@@ -1,9 +1,6 @@
 package itmo.course.coursework.service;
 
-import itmo.course.coursework.domain.Category;
-import itmo.course.coursework.domain.Group;
-import itmo.course.coursework.domain.Task;
-import itmo.course.coursework.domain.UserTask;
+import itmo.course.coursework.domain.*;
 import itmo.course.coursework.dto.request.TaskCreateRequest;
 import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.repository.TaskRepository;
@@ -42,8 +39,13 @@ public class TaskService {
         validateTaskRequest(request);
 
         Group group = groupService.findGroupById(request.getGroupId());
-        if (!groupService.isUserInGroup(group, userService.getUserById(request.getAssignedUserId()))) {
+        User user = userService.getUserById(request.getAssignedUserId());
+        if (!groupService.isUserInGroup(group, user)) {
             throw new BadRequestException("Вы не являетесь членом этой группы");
+        }
+
+        if (group.getGroupUsers().stream().noneMatch(groupUser -> groupUser.getUser().equals(user) && groupUser.getRole().equals(GroupUserRole.ADMIN))) {
+            throw new BadRequestException("Создавать задачи может только админ группы");
         }
 
         Task task = new Task();

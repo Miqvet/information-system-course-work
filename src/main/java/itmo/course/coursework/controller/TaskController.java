@@ -36,6 +36,7 @@ public class TaskController {
             @RequestParam(required = false) Integer priority) {
         return ResponseEntity.ok(userTaskService.getUserTasksByFunction(userId, completed, priority));
     }
+
     @GetMapping("/user/{userId}/statistics")
     public ResponseEntity<TaskStatisticsDTO> getUserStatistics(
             @PathVariable Long userId,

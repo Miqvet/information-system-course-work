@@ -1,5 +1,6 @@
 package itmo.course.coursework.service;
 
+import itmo.course.coursework.domain.GroupUserRole;
 import itmo.course.coursework.domain.Task;
 import itmo.course.coursework.domain.User;
 import itmo.course.coursework.domain.UserTask;
@@ -35,9 +36,12 @@ public class UserTaskService {
         if (!groupService.isUserInGroup(task.getGroup(), user)) {
             throw new BadRequestException("Пользователь не является членом группы задачи");
         }
+
+        if (task.getGroup().getGroupUsers().stream().noneMatch(groupUser -> groupUser.getUser().equals(user) && groupUser.getRole().equals(GroupUserRole.ADMIN))) {
+            throw new BadRequestException("Создавать задачи может только админ группы");
+        }
         
-        Optional<UserTask> existingAssignment = userTaskRepository
-            .findUserTaskByUserAndTask(user, task);
+        Optional<UserTask> existingAssignment = userTaskRepository.findUserTaskByUserAndTask(user, task);
             
         if (existingAssignment.isPresent()) {
             throw new BadRequestException("Задача уже назначена этому пользователю");
