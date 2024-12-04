@@ -14,6 +14,8 @@ import itmo.course.coursework.domain.User;
 import itmo.course.coursework.domain.UserTask;
 import itmo.course.coursework.domain.Group;
 import itmo.course.coursework.dto.request.TaskCreateRequest;
+import itmo.course.coursework.dto.response.TaskDTO;
+import itmo.course.coursework.dto.response.TaskStatisticsDTO;
 import itmo.course.coursework.exception.BadRequestException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,14 +29,29 @@ public class TaskController {
     private final UserTaskService userTaskService;
     private final GroupService groupService;
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<TaskDTO>> getUserTasks(
+            @PathVariable Long userId,
+            @RequestParam(required = false) Boolean completed,
+            @RequestParam(required = false) Integer priority) {
+        return ResponseEntity.ok(userTaskService.getUserTasksByFunction(userId, completed, priority));
+    }
+    @GetMapping("/user/{userId}/statistics")
+    public ResponseEntity<TaskStatisticsDTO> getUserStatistics(
+            @PathVariable Long userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        return ResponseEntity.ok(userTaskService.getUserTaskStatistics(userId, startDate, endDate));
+    }
+
     @GetMapping("/calendar")
-    public ResponseEntity<List<Task>> getTasksByDateRange(
+    public List<Task> getTasksByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByEmail(userEmail);
         
-        return ResponseEntity.ok(taskService.getTasksByDateRange(currentUser.getId(), start, end));
+        return taskService.getTasksByDateRange(currentUser.getId(), start, end);
     }
 
     @PutMapping("/{taskId}/complete")
@@ -46,18 +63,11 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/assign/{userId}")
-    public ResponseEntity<UserTask> assignTask(
+    public ResponseEntity<Boolean> assignTask(
             @PathVariable Long taskId,
-            @PathVariable Long userId) {
-        Task task = taskService.getTaskById(taskId);
-        User currentUser = userService.findByEmail(
-            SecurityContextHolder.getContext().getAuthentication().getName());
-            
-        if (!groupService.isUserInGroup(task.getGroup(), currentUser)) {
-            throw new BadRequestException("У вас нет прав для назначения задач в этой группе");
-        }
-        
-        return ResponseEntity.ok(userTaskService.assignTaskToUser(taskId, userId));
+            @PathVariable Long userId,
+            @RequestParam(required = false, defaultValue = "1") Integer priority) {
+        return ResponseEntity.ok(userTaskService.assignTaskToUserByFunction(taskId, userId, priority));
     }
 
     @PostMapping("/group/{groupId}")

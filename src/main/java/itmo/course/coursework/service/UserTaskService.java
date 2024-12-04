@@ -3,6 +3,8 @@ package itmo.course.coursework.service;
 import itmo.course.coursework.domain.Task;
 import itmo.course.coursework.domain.User;
 import itmo.course.coursework.domain.UserTask;
+import itmo.course.coursework.dto.response.TaskDTO;
+import itmo.course.coursework.dto.response.TaskStatisticsDTO;
 import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,4 +84,46 @@ public class UserTaskService {
         Task task = taskService.getTaskById(taskId);
         return userTaskRepository.findAllByTask(task);
     }
+
+
+     @Transactional
+    public boolean assignTaskToUserByFunction(Long taskId, Long userId, Integer priority) {
+        return userTaskRepository.assignTaskToUser(taskId, userId, priority);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TaskDTO> getUserTasksByFunction(Long userId, Boolean completed, Integer priority) {
+        List<Object[]> results = userTaskRepository.getUserTasksByFunction(userId, completed, priority);
+        return results.stream()
+            .map(this::mapToTaskDTO)
+            .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public TaskStatisticsDTO getUserTaskStatistics(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+        Object[] result = userTaskRepository.getUserTaskStatistics(userId, startDate, endDate);
+        return mapToTaskStatisticsDTO(result);
+    }
+
+    private TaskDTO mapToTaskDTO(Object[] result) {
+        return TaskDTO.builder()
+            .id(((Number) result[0]).longValue())
+            .title((String) result[1])
+            .description((String) result[2])
+            .currentPriority(((Number) result[3]).intValue())
+            .deadline((LocalDateTime) result[4])
+            .isCompleted((Boolean) result[5])
+            .build();
+    }
+
+    private TaskStatisticsDTO mapToTaskStatisticsDTO(Object[] result) {
+        return TaskStatisticsDTO.builder()
+            .totalTasks(((Number) result[0]).longValue())
+            .completedTasks(((Number) result[1]).longValue())
+            .completionRate(((Number) result[2]).doubleValue())
+            .highPriorityTasks(((Number) result[3]).longValue())
+            .build();
+    }
+
+
 } 
