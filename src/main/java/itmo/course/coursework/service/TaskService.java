@@ -3,6 +3,7 @@ package itmo.course.coursework.service;
 import itmo.course.coursework.domain.*;
 import itmo.course.coursework.dto.request.TaskCreateRequest;
 import itmo.course.coursework.exception.BadRequestException;
+import itmo.course.coursework.repository.GroupUserRepository;
 import itmo.course.coursework.repository.TaskRepository;
 import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class TaskService {
     private final GroupService groupService;
     private final UserService userService;
     private final UserTaskRepository userTaskRepository;
+    private final GroupUserRepository groupUserRepository;
 
     private void validateTaskRequest(TaskCreateRequest request) {
         if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
@@ -44,7 +46,7 @@ public class TaskService {
             throw new BadRequestException("Вы не являетесь членом этой группы");
         }
 
-        if (group.getGroupUsers().stream().noneMatch(groupUser -> groupUser.getUser().equals(user) && groupUser.getRole().equals(GroupUserRole.ADMIN))) {
+        if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN , user,group)) {
             throw new BadRequestException("Создавать задачи может только админ группы");
         }
 
@@ -103,15 +105,16 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public List<Task> getTasksByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
-        return taskRepository.findByUserTasksUserIdAndDeadlineBetweenOrderByDeadlineAsc(userId, start, end);
+    public List<UserTask> getTasksByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
+        return userTaskRepository.findByUserIdAndTaskDeadlineBetweenOrderByTaskDeadlineAsc(userId, start, end);
     }
 
     @Scheduled(fixedRate = 300000)
     public void updateRepeatableTasks() {
         List<Task> tasks = taskRepository.findByIsCompletedFalseAndIsRepeatedTrue();
         for (Task task : tasks) {
-            for (UserTask userTask : task.getUserTasks()) {
+            List<UserTask> userTasks = userTaskRepository.findAllByTask(task);
+            for (UserTask userTask : userTasks) {
                 if (userTask.getAssignedDate().isBefore(LocalDateTime.now().minusDays(task.getRepeatedPeriod()))) {
                     UserTask newUserTask = new UserTask();
                     newUserTask.setUser(userTask.getUser());

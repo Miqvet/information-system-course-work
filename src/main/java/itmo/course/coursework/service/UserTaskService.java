@@ -7,6 +7,7 @@ import itmo.course.coursework.domain.UserTask;
 import itmo.course.coursework.dto.response.TaskDTO;
 import itmo.course.coursework.dto.response.TaskStatisticsDTO;
 import itmo.course.coursework.exception.BadRequestException;
+import itmo.course.coursework.repository.GroupUserRepository;
 import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class UserTaskService {
     private final TaskService taskService;
     private final UserService userService;
     private final GroupService groupService;
+    private final GroupUserRepository groupUserRepository;
 
     @Transactional
     public UserTask assignTaskToUser(Long taskId, Long userId) {
@@ -36,11 +38,11 @@ public class UserTaskService {
         if (!groupService.isUserInGroup(task.getGroup(), user)) {
             throw new BadRequestException("Пользователь не является членом группы задачи");
         }
-
-        if (task.getGroup().getGroupUsers().stream().noneMatch(groupUser -> groupUser.getUser().equals(user) && groupUser.getRole().equals(GroupUserRole.ADMIN))) {
+        if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN , user, task.getGroup())) {
             throw new BadRequestException("Создавать задачи может только админ группы");
         }
-        
+
+
         Optional<UserTask> existingAssignment = userTaskRepository.findUserTaskByUserAndTask(user, task);
             
         if (existingAssignment.isPresent()) {

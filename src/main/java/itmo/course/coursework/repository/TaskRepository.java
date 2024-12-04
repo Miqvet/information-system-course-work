@@ -12,8 +12,6 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByCategory(Category category);
 
-    List<Task> findByUserTasksUserIdAndDeadlineBetweenOrderByDeadlineAsc(Long userId, LocalDateTime start, LocalDateTime end);
-
     List<Task> findByDeadlineBefore(LocalDateTime dateTime);
 
     List<Task> findByIsCompletedFalseAndIsRepeatedTrue();

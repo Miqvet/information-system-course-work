@@ -43,9 +43,6 @@ public class Task {
     @Column
     private Integer repeatedPeriod;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<UserTask> userTasks;
-
     @ManyToOne(optional = false)
     private Group group;
 } 

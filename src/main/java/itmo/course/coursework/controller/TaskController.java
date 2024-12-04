@@ -46,7 +46,7 @@ public class TaskController {
     }
 
     @GetMapping("/calendar")
-    public List<Task> getTasksByDateRange(
+    public List<UserTask> getTasksByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();

@@ -6,12 +6,14 @@ import itmo.course.coursework.domain.User;
 import itmo.course.coursework.domain.UserTask;
 import itmo.course.coursework.repository.NotificationRepository;
 import itmo.course.coursework.repository.TaskRepository;
+import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,6 +22,7 @@ public class NotificationService {
     private final TaskRepository taskRepository;
     private final EmailService emailService;
     private final NotificationRepository notificationRepository;
+    private final UserTaskRepository userTaskRepository;
 
     //@Scheduled(fixedRate = 300000) // Выполнять раз в 5 минут
     public void testik() {
@@ -29,8 +32,10 @@ public class NotificationService {
     @Scheduled(fixedRate = 300000) // Выполнять раз в 5 минут
     public void sendDeadlineNotifications() {
         List<Task> tasks = taskRepository.findByDeadlineBefore(LocalDateTime.now().plusMinutes(5));
+
         for (Task task : tasks) {
-            for (UserTask userTask : task.getUserTasks())
+            List<UserTask> userTasks = userTaskRepository.findAllByTask(task);
+            for (UserTask userTask : userTasks)
                 if (!userTask.getCompletionStatus())
                     sendDeadlineNotification(userTask);
         }

@@ -21,6 +21,8 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Long> {
 
     List<UserTask> findAllByTask(Task task);
 
+    List<UserTask> findByUserIdAndTaskDeadlineBetweenOrderByTaskDeadlineAsc(Long userId, LocalDateTime start, LocalDateTime end);
+
     List<UserTask> findByTaskDeadlineBetweenAndCompletionStatusFalse(LocalDateTime start, LocalDateTime end);
 
     @Query(value = "SELECT assign_task_to_user(:taskId, :userId, :priority)", nativeQuery = true)
