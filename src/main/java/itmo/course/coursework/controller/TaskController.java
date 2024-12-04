@@ -1,5 +1,8 @@
 package itmo.course.coursework.controller;
 
+import itmo.course.coursework.domain.*;
+import itmo.course.coursework.repository.GroupUserRepository;
+import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -9,10 +12,6 @@ import itmo.course.coursework.service.TaskService;
 import itmo.course.coursework.service.UserTaskService;
 import itmo.course.coursework.service.GroupService;
 import itmo.course.coursework.service.UserService;
-import itmo.course.coursework.domain.Task;
-import itmo.course.coursework.domain.User;
-import itmo.course.coursework.domain.UserTask;
-import itmo.course.coursework.domain.Group;
 import itmo.course.coursework.dto.request.TaskCreateRequest;
 import itmo.course.coursework.dto.response.TaskDTO;
 import itmo.course.coursework.dto.response.TaskStatisticsDTO;
@@ -28,6 +27,8 @@ public class TaskController {
     private final TaskService taskService;
     private final UserTaskService userTaskService;
     private final GroupService groupService;
+    private final UserTaskRepository userTaskRepository;
+    private final GroupUserRepository groupUserRepository;
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<TaskDTO>> getUserTasks(
@@ -85,5 +86,21 @@ public class TaskController {
         
         request.setGroupId(groupId);
         return ResponseEntity.ok(taskService.createTask(request));
+    }
+
+    @DeleteMapping("/{taskId}/delete_user_task/{userId}")
+    public ResponseEntity<Boolean> deleteUserTask(
+            @PathVariable Long taskId,
+            @PathVariable Long userId) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+
+        UserTask userTask = userTaskService.getUserTask(taskId, userId);
+        if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, userTask.getTask().getGroup())) {
+            throw new BadRequestException("Только администратор группы может удалять задачи");
+        }
+
+        userTaskRepository.delete(userTask);
+        return ResponseEntity.ok(true);
     }
 } 
