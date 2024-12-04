@@ -16,4 +16,7 @@ public class Reward {
 
     @Column(columnDefinition = "text")
     private String description;
+
+    @ManyToOne(optional = false)
+    private User user;
 }

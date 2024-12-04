@@ -53,7 +53,7 @@ public class TaskController {
         User currentUser = userService.findByEmail(
             SecurityContextHolder.getContext().getAuthentication().getName());
             
-        if (!groupService.existsGroupUserByGroupAndUser(task.getGroup(), currentUser)) {
+        if (!groupService.isUserInGroup(task.getGroup(), currentUser)) {
             throw new BadRequestException("У вас нет прав для назначения задач в этой группе");
         }
         
@@ -68,7 +68,7 @@ public class TaskController {
         User currentUser = userService.findByEmail(userEmail);
         Group group = groupService.findGroupById(groupId);
         
-        if (!groupService.existsGroupUserByGroupAndUser(group, currentUser)) {
+        if (!groupService.isUserInGroup(group, currentUser)) {
             throw new BadRequestException("Вы не являетесь членом этой группы");
         }
         

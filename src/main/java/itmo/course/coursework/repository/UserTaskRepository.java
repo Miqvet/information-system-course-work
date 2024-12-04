@@ -11,8 +11,10 @@ import java.util.Optional;
 
 public interface UserTaskRepository extends JpaRepository<UserTask, Long> {
     Optional<UserTask> findUserTaskByUserAndTask(User user, Task task);
+
     List<UserTask> findAllByUser(User user);
+
     List<UserTask> findAllByTask(Task task);
-    List<UserTask> findByTaskDeadlineBetweenAndCompletionStatusFalse(
-        LocalDateTime start, LocalDateTime end);
+
+    List<UserTask> findByTaskDeadlineBetweenAndCompletionStatusFalse(LocalDateTime start, LocalDateTime end);
 } 
