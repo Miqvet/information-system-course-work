@@ -43,6 +43,7 @@ public class CommentService {
                 .comment(comment.getComment())
                 .taskId(task.getId())
                 .user(new UserDTO(user.getFirstName(), user.getLastName()))
+                .createdAt(comment.getCreatedAt())
                 .build();
     }
 
@@ -54,6 +55,7 @@ public class CommentService {
                     .comment(comment.getComment())
                     .taskId(task.getId())
                     .user(new UserDTO(user.getFirstName(), user.getLastName()))
+                    .createdAt(comment.getCreatedAt())
                     .build();
         }).toList();
     }
@@ -79,6 +81,7 @@ public class CommentService {
                 .comment(comment.getComment())
                 .taskId(comment.getTask().getId())
                 .user(new UserDTO(user.getFirstName(), user.getLastName()))
+                .createdAt(comment.getCreatedAt())
                 .build();
     }
 
