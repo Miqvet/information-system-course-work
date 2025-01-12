@@ -15,8 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import itmo.course.coursework.dto.response.GroupUserDTO;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/groups")
@@ -74,5 +76,27 @@ public class GroupController {
             @PathVariable Long groupId,
             @PathVariable Long userId) {
         return ResponseEntity.ok(groupService.deleteMember(groupId, userId));
+    }
+
+    @GetMapping("/{groupId}/users")
+    public ResponseEntity<List<GroupUserDTO>> getGroupUsers(@PathVariable Long groupId) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+        Group group = groupService.findGroupById(groupId);
+        
+        if (!groupService.isUserInGroup(group, currentUser)) {
+            throw new BadRequestException("Вы не являетесь членом этой группы");
+        }
+        FindAllGroupMembersRequest request = new FindAllGroupMembersRequest();
+        request.setGroupId(groupId);
+        
+        List<GroupUser> groupUsers = groupService.findAllGroupMembers(request);
+        return ResponseEntity.ok(groupUsers.stream()
+            .map(gu -> new GroupUserDTO(
+                gu.getUser().getId(),
+                gu.getUser().getFirstName() + " " + gu.getUser().getLastName(),
+                gu.getRole().toString()
+            ))
+            .collect(Collectors.toList()));
     }
 } 
