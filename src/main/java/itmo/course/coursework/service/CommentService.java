@@ -4,6 +4,8 @@ import itmo.course.coursework.dto.request.CommentCreateRequest;
 import itmo.course.coursework.domain.Comment;
 import itmo.course.coursework.domain.Task;
 import itmo.course.coursework.domain.User;
+import itmo.course.coursework.dto.response.CommentDTO;
+import itmo.course.coursework.dto.response.UserDTO;
 import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,7 @@ public class CommentService {
     private final GroupService groupService;
 
     @Transactional
-    public Comment createComment(CommentCreateRequest request, String userEmail) {
+    public CommentDTO createComment(CommentCreateRequest request, String userEmail) {
         Task task = taskService.getTaskById(request.getTaskId());
         User user = userService.findByEmail(userEmail);
 
@@ -35,12 +37,25 @@ public class CommentService {
         comment.setUser(user);
         comment.setComment(request.getComment());
 
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
+
+        return CommentDTO.builder()
+                .comment(comment.getComment())
+                .taskId(task.getId())
+                .user(new UserDTO(user.getFirstName(), user.getLastName()))
+                .build();
     }
 
-    public List<Comment> getTaskComments(Long taskId) {
+    public List<CommentDTO> getTaskComments(Long taskId) {
         Task task = taskService.getTaskById(taskId);
-        return commentRepository.findByTaskOrderByCreatedAtDesc(task);
+        return commentRepository.findByTaskOrderByCreatedAtDesc(task).stream().map(comment -> {
+            User user = comment.getUser();
+            return CommentDTO.builder()
+                    .comment(comment.getComment())
+                    .taskId(task.getId())
+                    .user(new UserDTO(user.getFirstName(), user.getLastName()))
+                    .build();
+        }).toList();
     }
 
     public Comment getCommentById(Long commentId) {
@@ -49,7 +64,7 @@ public class CommentService {
     }
 
     @Transactional
-    public Comment updateComment(Long commentId, String newComment, String userEmail) {
+    public CommentDTO updateComment(Long commentId, String newComment, String userEmail) {
         Comment comment = getCommentById(commentId);
         User user = userService.findByEmail(userEmail);
 
@@ -58,7 +73,13 @@ public class CommentService {
         }
 
         comment.setComment(newComment);
-        return commentRepository.save(comment);
+        commentRepository.save(comment);;
+
+        return CommentDTO.builder()
+                .comment(comment.getComment())
+                .taskId(comment.getTask().getId())
+                .user(new UserDTO(user.getFirstName(), user.getLastName()))
+                .build();
     }
 
     @Transactional

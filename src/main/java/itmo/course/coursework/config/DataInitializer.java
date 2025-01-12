@@ -2,6 +2,7 @@ package itmo.course.coursework.config;
 
 import itmo.course.coursework.domain.*;
 import itmo.course.coursework.repository.*;
+import itmo.course.coursework.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ public class DataInitializer implements CommandLineRunner {
     private final UserTaskRepository userTaskRepository;
     private final RewardRepository rewardRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CommentRepository commentRepository;
 
     @Override
     public void run(String... args) {
@@ -111,6 +113,7 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         tasks = taskRepository.saveAll(tasks);
+        createCommentsForTasks(tasks);
         for (int i = 0; i < tasks.size(); i++) {
             UserTask userTask = new UserTask();
             userTask.setTask(tasks.get(i));
@@ -118,6 +121,19 @@ public class DataInitializer implements CommandLineRunner {
             userTask.setAssignedDate(LocalDateTime.now());
             userTask.setCompletionStatus(false);
             userTaskRepository.save(userTask);
+        }
+    }
+
+    private void createCommentsForTasks(List<Task> tasks) {
+        for (Task task : tasks) {
+            Comment comment = new Comment();
+            comment.setComment("this is stupid to do this task №" + task.getId());
+            comment.setTask(task);
+            Group group = groupRepository.findById(task.getGroup().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Неизвестная группа"));
+            List<GroupUser> groupUsers = groupUserRepository.findAllByGroup(group);
+            comment.setUser(groupUsers.get(0).getUser());
+            commentRepository.save(comment);
         }
     }
 
