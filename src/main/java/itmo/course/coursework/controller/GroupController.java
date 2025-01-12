@@ -16,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.channels.AsynchronousByteChannel;
 import java.util.List;
 
 @RestController
@@ -41,18 +40,15 @@ public class GroupController {
     }
 
     @PostMapping("/{groupId}/members")
-    public ResponseEntity<GroupUser> addMember(
-            @PathVariable Long groupId,
-            @RequestBody AddGroupMemberRequest request) {
+    public ResponseEntity<GroupUser> addMember(@PathVariable Long groupId) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByEmail(userEmail);
-        Group group = groupService.findGroupById(groupId);
-
-        if (!group.getCreatedBy().equals(currentUser)) {
-            throw new BadRequestException("Только создатель группы может добавлять участников");
-        }
-
+        
+        AddGroupMemberRequest request = new AddGroupMemberRequest();
         request.setGroupId(groupId);
+        request.setUserId(currentUser.getId());
+        request.setUserRole("MEMBER");
+        
         return ResponseEntity.ok(groupService.addGroupMember(request));
     }
 

@@ -34,13 +34,24 @@ public class GroupService {
     }
     public Group createGroup(GroupCreateRequest request) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow();
 
         Group group = new Group();
         group.setName(request.getName());
         group.setDescription(request.getDescription());
-        group.setCreatedBy(userRepository.findByEmail(userEmail).orElseThrow());
+        group.setCreatedBy(user);
+        
+        // Сохраняем группу
+        group = groupRepository.save(group);
+        
+        // Создаем связь GroupUser с ролью ADMIN
+        GroupUser groupUser = new GroupUser();
+        groupUser.setGroup(group);
+        groupUser.setUser(user);
+        groupUser.setRole(GroupUserRole.ADMIN);
+        groupUserRepository.save(groupUser);
 
-        return groupRepository.save(group);
+        return group;
     }
 
     public GroupUser addGroupMember(AddGroupMemberRequest request) {
@@ -70,7 +81,7 @@ public class GroupService {
     public List<Group> findAllUserGroups(FindAllUserGroupsRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Неизвестный пользователь"));
-        return groupRepository.findAllByCreatedBy(user);
+        return groupUserRepository.findAllByUser(user).stream().map(GroupUser::getGroup).collect(Collectors.toList());
     }
 
     public boolean isUserInGroup(Group group, User user) {

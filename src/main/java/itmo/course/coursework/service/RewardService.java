@@ -17,8 +17,8 @@ public class RewardService {
     private final RewardRepository rewardRepository;
     private final UserRewardRepository userRewardRepository;
 
-    public List<Reward> findAllUserRewards(User user) {
-        return rewardRepository.findAllByUser(user);
+    public List<UserReward> findAllUserRewards(User user) {
+        return userRewardRepository.findAllByUser(user);
     }
 
     public void assignRewardToUser(Reward reward, User user) {
