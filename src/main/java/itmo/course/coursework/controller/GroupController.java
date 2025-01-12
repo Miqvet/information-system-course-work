@@ -12,9 +12,11 @@ import itmo.course.coursework.service.GroupService;
 import itmo.course.coursework.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.channels.AsynchronousByteChannel;
 import java.util.List;
 
 @RestController
@@ -27,6 +29,15 @@ public class GroupController {
     @PostMapping
     public ResponseEntity<Group> createGroup(@RequestBody GroupCreateRequest request) {
         return ResponseEntity.ok(groupService.createGroup(request));
+    }
+    @GetMapping
+    public ResponseEntity<List<Group>> getUserGroups() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        User currentUser = userService.findByEmail(userEmail);
+        FindAllUserGroupsRequest request = new FindAllUserGroupsRequest();
+        request.setUserId(currentUser.getId());
+        return ResponseEntity.ok(groupService.findAllUserGroups(request));
     }
 
     @PostMapping("/{groupId}/members")
@@ -50,13 +61,6 @@ public class GroupController {
         FindAllGroupMembersRequest request = new FindAllGroupMembersRequest();
         request.setGroupId(groupId);
         return ResponseEntity.ok(groupService.findAllGroupMembers(request));
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<GroupUser>> getUserGroups(@PathVariable Long userId) {
-        FindAllUserGroupsRequest request = new FindAllUserGroupsRequest();
-        request.setUserId(userId);
-        return ResponseEntity.ok(groupService.findAllUserGroups(request));
     }
 
     @GetMapping("/{groupId}")

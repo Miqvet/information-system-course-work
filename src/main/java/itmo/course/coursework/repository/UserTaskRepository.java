@@ -3,8 +3,6 @@ package itmo.course.coursework.repository;
 import itmo.course.coursework.domain.Task;
 import itmo.course.coursework.domain.User;
 import itmo.course.coursework.domain.UserTask;
-import itmo.course.coursework.dto.response.TaskDTO;
-import itmo.course.coursework.dto.response.TaskStatisticsDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

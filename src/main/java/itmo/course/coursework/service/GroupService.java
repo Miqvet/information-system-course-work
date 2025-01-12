@@ -13,12 +13,12 @@ import itmo.course.coursework.repository.GroupRepository;
 import itmo.course.coursework.repository.GroupUserRepository;
 import itmo.course.coursework.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -67,11 +67,10 @@ public class GroupService {
         return groupUserRepository.findAllByGroup(group);
     }
 
-    public List<GroupUser> findAllUserGroups(FindAllUserGroupsRequest request) {
+    public List<Group> findAllUserGroups(FindAllUserGroupsRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Неизвестный пользователь"));
-
-        return groupUserRepository.findAllByUser(user);
+        return groupRepository.findAllByCreatedBy(user);
     }
 
     public boolean isUserInGroup(Group group, User user) {
