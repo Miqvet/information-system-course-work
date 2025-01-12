@@ -90,4 +90,11 @@ public class TaskController {
             @PathVariable Long userId) {
         return ResponseEntity.ok(userTaskService.deleteUserTask(taskId, userId));
     }
+
+    @GetMapping("/current")
+    public ResponseEntity<List<TaskDTO>> getCurrentUserTasks() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+        return ResponseEntity.ok(userTaskService.getUserTasksByFunction(currentUser.getId(), null, null));
+    }
 } 
