@@ -1,5 +1,6 @@
 package itmo.course.coursework.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,5 +44,6 @@ public class Task {
     private Integer repeatedPeriod;
 
     @ManyToOne(optional = false)
+    @JsonIgnore
     private Group group;
 } 

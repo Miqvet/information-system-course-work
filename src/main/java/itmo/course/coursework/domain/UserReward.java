@@ -1,5 +1,6 @@
 package itmo.course.coursework.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class UserReward {
     private Reward reward;
 
     @ManyToOne(optional = false)
+    @JsonIgnore
     private User user;
 
     @Column

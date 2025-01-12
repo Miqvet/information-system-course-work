@@ -24,6 +24,7 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final CommentRepository commentRepository;
     private final UserRewardRepository userRewardRepository;
+    private final NotificationRepository notificationRepository;
 
     @Override
     public void run(String... args) {
@@ -122,6 +123,13 @@ public class DataInitializer implements CommandLineRunner {
             userTask.setAssignedDate(LocalDateTime.now());
             userTask.setCompletionStatus(false);
             userTaskRepository.save(userTask);
+
+            Notification notification = new Notification();
+            notification.setUserTask(userTask);
+            notification.setDate(LocalDateTime.now());
+            notification.setTitle("ААААА!!!!");
+            notification.setDescription("Погуляй уже с собакой!");
+            notificationRepository.save(notification);
         }
     }
 
@@ -164,6 +172,7 @@ public class DataInitializer implements CommandLineRunner {
         Reward reward = new Reward();
         reward.setName(name);
         reward.setDescription(description);
+        rewardRepository.save(reward);
 
         UserReward userReward = new UserReward();
         userReward.setReward(reward);
