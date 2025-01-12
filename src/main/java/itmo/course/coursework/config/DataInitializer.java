@@ -2,7 +2,6 @@ package itmo.course.coursework.config;
 
 import itmo.course.coursework.domain.*;
 import itmo.course.coursework.repository.*;
-import itmo.course.coursework.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +23,7 @@ public class DataInitializer implements CommandLineRunner {
     private final RewardRepository rewardRepository;
     private final PasswordEncoder passwordEncoder;
     private final CommentRepository commentRepository;
+    private final UserRewardRepository userRewardRepository;
 
     @Override
     public void run(String... args) {
@@ -40,10 +40,10 @@ public class DataInitializer implements CommandLineRunner {
 
     private List<User> createUsers() {
         List<User> users = Arrays.asList(
-            createUser("john@example.com", "John", "Doe"),
-            createUser("jane@example.com", "Jane", "Smith"),
-            createUser("bob@example.com", "Bob", "Johnson"),
-            createUser("alice@example.com", "Alice", "Brown")
+                createUser("john@example.com", "John", "Doe"),
+                createUser("jane@example.com", "Jane", "Smith"),
+                createUser("bob@example.com", "Bob", "Johnson"),
+                createUser("alice@example.com", "Alice", "Brown")
         );
         return userRepository.saveAll(users);
     }
@@ -59,9 +59,10 @@ public class DataInitializer implements CommandLineRunner {
 
     private List<Category> createCategories() {
         List<Category> categories = Arrays.asList(
-            createCategory("Работа", "Рабочие задачи"),
-            createCategory("Учеба", "Учебные задания"),
-            createCategory("Личное", "Личные дела")
+                createCategory("Уборка", "Задачи по уборке дома"),
+                createCategory("Покупки", "Задачи по покупке продуктов и товаров"),
+                createCategory("Ремонт", "Задачи по ремонту и обслуживанию дома"),
+                createCategory("Дети", "Задачи, связанные с детьми")
         );
         return categoryRepository.saveAll(categories);
     }
@@ -75,8 +76,8 @@ public class DataInitializer implements CommandLineRunner {
 
     private List<Group> createGroups(User admin) {
         List<Group> groups = Arrays.asList(
-            createGroup("Команда разработки", "Группа разработчиков проекта", admin),
-            createGroup("Учебная группа", "Группа для учебных заданий", admin)
+                createGroup("Семья Ивановых", "Домохозяйство семьи Ивановых", admin),
+                createGroup("Соседи", "Соседская группа взаимопомощи", admin)
         );
         return groupRepository.saveAll(groups);
     }
@@ -95,8 +96,8 @@ public class DataInitializer implements CommandLineRunner {
                 GroupUser groupUser = new GroupUser();
                 groupUser.setGroup(group);
                 groupUser.setUser(user);
-                groupUser.setRole(user.equals(group.getCreatedBy()) ? 
-                    GroupUserRole.ADMIN : GroupUserRole.MEMBER);
+                groupUser.setRole(user.equals(group.getCreatedBy()) ?
+                        GroupUserRole.ADMIN : GroupUserRole.MEMBER);
                 groupUserRepository.save(groupUser);
             }
         }
@@ -104,12 +105,12 @@ public class DataInitializer implements CommandLineRunner {
 
     private void createTasks(List<Category> categories, List<Group> groups, List<User> users) {
         List<Task> tasks = Arrays.asList(
-            createTask("Разработка API", "Разработать REST API", categories.get(0), groups.get(0), 3),
-            createTask("Написать тесты", "Написать unit-тесты", categories.get(0), groups.get(0), 2),
-            createTask("Подготовить презентацию", "Подготовить презентацию проекта", categories.get(1), groups.get(1), 2),
-            createTask("Изучить Spring Security", "Изучить основы Spring Security", categories.get(1), groups.get(1), 1),
-            createTask("Код ревью", "Провести код ревью", categories.get(0), groups.get(0), 3),
-            createTask("Документация", "Написать документацию", categories.get(0), groups.get(0), 1)
+                createTask("Помыть посуду", "Помыть посуду после ужина", categories.get(0), groups.get(0), 3),
+                createTask("Купить молоко", "Купить молоко в магазине", categories.get(1), groups.get(0), 2),
+                createTask("Починить кран", "Починить протекающий кран на кухне", categories.get(2), groups.get(0), 1),
+                createTask("Погулять с собакой", "Погулять с собакой в парке", categories.get(3), groups.get(0), 2),
+                createTask("Убрать в гостиной", "Пропылесосить и протереть пыль в гостиной", categories.get(0), groups.get(0), 3),
+                createTask("Забрать детей из школы", "Забрать детей из школы к 15:00", categories.get(3), groups.get(0), 1)
         );
 
         tasks = taskRepository.saveAll(tasks);
@@ -127,7 +128,7 @@ public class DataInitializer implements CommandLineRunner {
     private void createCommentsForTasks(List<Task> tasks) {
         for (Task task : tasks) {
             Comment comment = new Comment();
-            comment.setComment("this is stupid to do this task №" + task.getId());
+            comment.setComment("Не забудьте выполнить задачу: " + task.getTitle());
             comment.setTask(task);
             Group group = groupRepository.findById(task.getGroup().getId())
                     .orElseThrow(() -> new IllegalArgumentException("Неизвестная группа"));
@@ -144,26 +145,31 @@ public class DataInitializer implements CommandLineRunner {
         task.setCategory(category);
         task.setGroup(group);
         task.setCurrentPriority(priority);
-        task.setDeadline(LocalDateTime.now().plusDays(7));
+        task.setDeadline(LocalDateTime.now().plusDays(1));
         task.setIsRepeated(false);
         task.setIsCompleted(false);
         return task;
     }
 
     private void createRewards(List<User> users) {
-        List<Reward> rewards = Arrays.asList(
-            createReward("Лучший исполнитель", "За выполнение всех задач в срок", users.get(0)),
-            createReward("Командный игрок", "За помощь коллегам", users.get(1)),
-            createReward("Новатор", "За инновационные решения", users.get(2))
+        List<UserReward> userRewards = Arrays.asList(
+                createReward("Лучший помощник", "За выполнение всех задач в срок", users.get(0)),
+                createReward("Суперпокупатель", "За своевременные покупки", users.get(1)),
+                createReward("Мастер на все руки", "За ремонт и обслуживание дома", users.get(2))
         );
-        rewardRepository.saveAll(rewards);
+        userRewardRepository.saveAll(userRewards);
     }
 
-    private Reward createReward(String name, String description, User user) {
+    private UserReward createReward(String name, String description, User user) {
         Reward reward = new Reward();
         reward.setName(name);
         reward.setDescription(description);
-        reward.setUser(user);
-        return reward;
+
+        UserReward userReward = new UserReward();
+        userReward.setReward(reward);
+        userReward.setAwardedDate(LocalDateTime.now());
+        userReward.setUser(user);
+
+        return userReward;
     }
 } 
