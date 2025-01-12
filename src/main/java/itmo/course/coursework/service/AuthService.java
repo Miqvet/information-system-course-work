@@ -32,7 +32,7 @@ public class AuthService {
 
     public String authenticateUser(UserSignInRequest request) {
         User user = userService.findByEmail(request.getEmail());
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Неверные учетные данные");
         }
 

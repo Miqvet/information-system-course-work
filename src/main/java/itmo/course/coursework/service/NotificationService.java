@@ -28,7 +28,7 @@ public class NotificationService {
         emailService.sendEmail("your_mom@mail.com", "dauzoc@tempmailto.org", "hello", "this is test");
     }
 
-    @Scheduled(fixedRate = 300000) // Выполнять раз в 5 минут
+    //@Scheduled(fixedRate = 300000) // Выполнять раз в 5 минут
     public void sendDeadlineNotifications() {
         List<Task> tasks = taskRepository.findByDeadlineBefore(LocalDateTime.now().plusMinutes(5));
 

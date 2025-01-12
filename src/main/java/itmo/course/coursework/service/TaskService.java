@@ -109,7 +109,7 @@ public class TaskService {
         return userTaskRepository.findByUserIdAndTaskDeadlineBetweenOrderByTaskDeadlineAsc(userId, start, end);
     }
 
-    @Scheduled(fixedRate = 300000)
+    //@Scheduled(fixedRate = 300000)
     public void updateRepeatableTasks() {
         List<Task> tasks = taskRepository.findByIsCompletedFalseAndIsRepeatedTrue();
         for (Task task : tasks) {
