@@ -16,7 +16,7 @@ services:
   backend:
     build: .
     ports:
-      - "8081:8080"
+      - "8080:8080"
     depends_on:
       - postgres
     environment:
@@ -29,9 +29,11 @@ services:
   frontend:
     build: ../course-work-front
     ports:
-      - "8080:80"
+      - "3000:3000"
     depends_on:
       - backend
+    environment:
+      - PORT=3000
     networks:
       - app-network
 
