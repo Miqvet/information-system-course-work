@@ -4,7 +4,7 @@ import itmo.course.coursework.domain.GroupUserRole;
 import itmo.course.coursework.domain.Task;
 import itmo.course.coursework.domain.User;
 import itmo.course.coursework.domain.UserTask;
-import itmo.course.coursework.dto.response.TaskDTO;
+import itmo.course.coursework.dto.response.UserTaskDTO;
 import itmo.course.coursework.dto.response.TaskStatisticsDTO;
 import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.repository.GroupUserRepository;
@@ -84,9 +84,19 @@ public class UserTaskService {
         userTaskRepository.delete(userTask);
     }
 
-    public List<UserTask> getUserTasks(Long userId) {
+    public List<UserTaskDTO> getUserTasks(Long userId) {
         User user = userService.getUserById(userId);
-        return userTaskRepository.findAllByUser(user);
+        List<UserTask> userTasks = userTaskRepository.findAllByUser(user);
+        return userTasks.stream().map(userTask -> UserTaskDTO.builder()
+                .id(userTask.getId())
+                .taskId(userTask.getTask().getId())
+                .group(userTask.getTask().getGroup().getId())
+                .title(userTask.getTask().getTitle())
+                .description(userTask.getTask().getDescription())
+                .deadline(userTask.getTask().getDeadline())
+                .priority(userTask.getTask().getCurrentPriority())
+                .completed(userTask.getCompletionStatus())
+                .build()).toList();
     }
 
     public List<UserTask> getTaskAssignments(Long taskId) {
@@ -100,11 +110,11 @@ public class UserTaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<TaskDTO> getUserTasksByFunction(Long userId, Boolean completed, Integer priority) {
-        var tasks = new ArrayList<TaskDTO>();
+    public List<UserTaskDTO> getUserTasksByFunction(Long userId, Boolean completed, Integer priority) {
+        var tasks = new ArrayList<UserTaskDTO>();
         var results = userTaskRepository.getUserTasksByFunction(userId, completed, priority);
         for (var result : results)
-            tasks.add(new TaskDTO((Long) result.get("task_id"), (String) result.get("title"), (String) result.get("description"), (Integer) result.get("currentPriority"), ((Timestamp) result.get("deadline")).toLocalDateTime(), (Boolean) result.get("isCompleted")));
+            tasks.add(new UserTaskDTO((Long) result.get("task_id"), (String) result.get("title"), (String) result.get("description"), (Integer) result.get("priority"), ((Timestamp) result.get("deadline")).toLocalDateTime(), (Boolean) result.get("isCompleted")));
         return tasks;
     }
 

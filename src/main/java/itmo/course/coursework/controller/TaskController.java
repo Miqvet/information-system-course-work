@@ -11,7 +11,7 @@ import itmo.course.coursework.service.UserTaskService;
 import itmo.course.coursework.service.GroupService;
 import itmo.course.coursework.service.UserService;
 import itmo.course.coursework.dto.request.TaskCreateRequest;
-import itmo.course.coursework.dto.response.TaskDTO;
+import itmo.course.coursework.dto.response.UserTaskDTO;
 import itmo.course.coursework.dto.response.TaskStatisticsDTO;
 import itmo.course.coursework.exception.BadRequestException;
 import java.time.LocalDateTime;
@@ -26,12 +26,20 @@ public class TaskController {
     private final UserTaskService userTaskService;
     private final GroupService groupService;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<TaskDTO>> getUserTasks(
-            @PathVariable Long userId,
+    @GetMapping("/by_function")
+    public ResponseEntity<List<UserTaskDTO>> getUserTasksByFunction(
             @RequestParam(required = false) Boolean completed,
             @RequestParam(required = false) Integer priority) {
-        return ResponseEntity.ok(userTaskService.getUserTasksByFunction(userId, completed, priority));
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+        return ResponseEntity.ok(userTaskService.getUserTasksByFunction(currentUser.getId(), completed, priority));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserTaskDTO>> getUserTasks() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+        return ResponseEntity.ok(userTaskService.getUserTasks(currentUser.getId()));
     }
 
     @GetMapping("/user/{userId}/statistics")
@@ -89,12 +97,5 @@ public class TaskController {
             @PathVariable Long taskId,
             @PathVariable Long userId) {
         return ResponseEntity.ok(userTaskService.deleteUserTask(taskId, userId));
-    }
-
-    @GetMapping("/current")
-    public ResponseEntity<List<TaskDTO>> getCurrentUserTasks() {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userService.findByEmail(userEmail);
-        return ResponseEntity.ok(userTaskService.getUserTasksByFunction(currentUser.getId(), null, null));
     }
 } 

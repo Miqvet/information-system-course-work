@@ -75,7 +75,7 @@ public class CommentService {
         }
 
         comment.setComment(newComment);
-        commentRepository.save(comment);;
+        commentRepository.save(comment);
 
         return CommentDTO.builder()
                 .comment(comment.getComment())
