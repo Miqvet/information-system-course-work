@@ -4,6 +4,7 @@ import itmo.course.coursework.domain.*;
 import itmo.course.coursework.dto.request.TaskCreateRequest;
 import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.repository.GroupUserRepository;
+import itmo.course.coursework.repository.NotificationRepository;
 import itmo.course.coursework.repository.TaskRepository;
 import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class TaskService {
     private final UserService userService;
     private final UserTaskRepository userTaskRepository;
     private final GroupUserRepository groupUserRepository;
+    private final NotificationRepository notificationRepository;
 
     private void validateTaskRequest(TaskCreateRequest request) {
         if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
@@ -101,6 +103,7 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    @Transactional
     public boolean deleteTask(Long id) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByEmail(userEmail);
@@ -110,7 +113,7 @@ public class TaskService {
             throw new BadRequestException("Только администратор группы может удалять задачи");
         }
 
-        userTaskRepository.deleteByTaskId(id);
+        userTaskRepository.deleteAllByTaskId(id);
         taskRepository.deleteById(id);
 
         return true;
