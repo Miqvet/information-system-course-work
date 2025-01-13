@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -100,16 +101,18 @@ public class GroupService {
         groupUserRepository.deleteById(groupId);
         return true;
     }
-    public boolean deleteMember(Long groupId, Long userId){
+    @Transactional
+    public boolean deleteMember(Long groupId, Long userId) {
+        Group group = findGroupById(groupId);
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByEmail(userEmail);
-        Group group = findGroupById(groupId);
 
-        if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, group)) {
+        if (!groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, group)) {
             throw new BadRequestException("Только администратор группы может удалять участников");
         }
 
-        return groupUserRepository.deleteGroupUserByGroupAndUserId(group, userId);
+        groupUserRepository.deleteGroupUserByGroupAndUserId(group, userId);
+        return true;
     }
 
     public boolean isUserAdmin(Group group, User user) {
@@ -118,5 +121,21 @@ public class GroupService {
 
     public Group updateGroup(Group group) {
         return groupRepository.save(group);
+    }
+    public GroupUser updateMemberRole(Long groupId, Long userId, String role) {
+        Group group = findGroupById(groupId);
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+
+        // Проверяем, что текущий пользователь - администратор
+        if (!groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, group)) {
+            throw new BadRequestException("Только администратор группы может изменять роли");
+        }
+
+        GroupUser groupUser = groupUserRepository.findByGroupIdAndUserId(groupId, userId)
+            .orElseThrow(() -> new BadRequestException("Пользователь не найден в группе"));
+        
+        groupUser.setRole(GroupUserRole.valueOf(role.toUpperCase()));
+        return groupUserRepository.save(groupUser);
     }
 }

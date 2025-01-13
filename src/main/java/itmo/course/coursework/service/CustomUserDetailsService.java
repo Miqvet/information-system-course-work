@@ -1,13 +1,9 @@
 package itmo.course.coursework.service;
 
-import itmo.course.coursework.config.CacheConfig;
 import itmo.course.coursework.domain.User;
 import itmo.course.coursework.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

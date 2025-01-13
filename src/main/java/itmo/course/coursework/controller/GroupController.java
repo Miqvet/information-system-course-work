@@ -20,6 +20,7 @@ import itmo.course.coursework.dto.response.GroupUserDTO;
 import itmo.course.coursework.dto.response.GroupDTO;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -90,6 +91,15 @@ public class GroupController {
     public ResponseEntity<Boolean> deleteMember(
             @PathVariable Long groupId,
             @PathVariable Long userId) {
+        System.out.println(groupId + " " + userId);
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+        Group group = groupService.findGroupById(groupId);
+        
+        if (!groupService.isUserAdmin(group, currentUser)) {
+            throw new BadRequestException("Только администратор может удалять участников");
+        }
+        
         return ResponseEntity.ok(groupService.deleteMember(groupId, userId));
     }
 
@@ -137,4 +147,24 @@ public class GroupController {
             updatedGroup.getCreatedBy().getFirstName() + " " + updatedGroup.getCreatedBy().getLastName()
         ));
     }
+
+    @PutMapping("/{groupId}/update_role/{userId}")
+    public ResponseEntity<GroupUser> updateMemberRole(
+        @PathVariable Long groupId,
+        @PathVariable Long userId,
+        @RequestBody Map<String, String> request) {
+        System.out.println(groupId + " " + userId);
+        System.out.println(request.get("role"));
+        System.out.println(request);
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+        Group group = groupService.findGroupById(groupId);
+        
+        if (!groupService.isUserAdmin(group, currentUser)) {
+            throw new BadRequestException("Только администратор может изменять роли участников");
+        }
+        
+        return ResponseEntity.ok(groupService.updateMemberRole(groupId, userId, request.get("role")));
+    }
+    
 } 

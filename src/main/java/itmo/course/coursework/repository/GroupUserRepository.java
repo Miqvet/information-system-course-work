@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GroupUserRepository extends JpaRepository<GroupUser, Long> {
@@ -17,13 +18,15 @@ public interface GroupUserRepository extends JpaRepository<GroupUser, Long> {
 
     boolean existsByRoleAndUserAndGroup(GroupUserRole groupUserRole, User user, Group group);
 
-    boolean deleteGroupUserByGroupAndUser(Group group, User user);
+    void deleteGroupUserByGroupAndUser(Group group, User user);
 
-    boolean deleteGroupUserByGroupAndUserId(Group group, Long userId);
+    void deleteGroupUserByGroupAndUserId(Group group, Long userId);
 
     boolean existsByRoleAndUserAndGroupId(GroupUserRole groupUserRole, User user, Long groupId);
 
     boolean existsGroupUserByGroupAndUser(Group group, User user);
 
     boolean existsGroupUserByGroupId(Long groupId);
+
+    Optional<GroupUser> findByGroupIdAndUserId(Long groupId, Long userId);
 }
