@@ -8,6 +8,7 @@ import itmo.course.coursework.dto.response.UserTaskDTO;
 import itmo.course.coursework.dto.response.TaskStatisticsDTO;
 import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.repository.GroupUserRepository;
+import itmo.course.coursework.repository.NotificationRepository;
 import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +30,7 @@ public class UserTaskService {
     private final UserService userService;
     private final GroupService groupService;
     private final GroupUserRepository groupUserRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public UserTask assignTaskToUser(Long taskId, Long userId) {
@@ -125,6 +127,7 @@ public class UserTaskService {
         return new TaskStatisticsDTO((Long) result.get("totalTasks"), (Long) result.get("completedTasks"), ((BigDecimal) result.get("completionRate")).doubleValue(), (Long) result.get("highPriorityTasks"));
     }
 
+    @Transactional
     public boolean deleteUserTask(Long taskId, Long userId){
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByEmail(userEmail);

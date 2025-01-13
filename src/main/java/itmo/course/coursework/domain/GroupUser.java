@@ -16,9 +16,9 @@ public class GroupUser {
     @Column(nullable = false)
     private GroupUserRole role;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
     private Group group;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
     private User user;
 } 
