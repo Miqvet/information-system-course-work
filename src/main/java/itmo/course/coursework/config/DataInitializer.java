@@ -41,10 +41,10 @@ public class DataInitializer implements CommandLineRunner {
 
     private List<User> createUsers() {
         List<User> users = Arrays.asList(
-                createUser("john@example.com", "John", "Doe"),
-                createUser("jane@example.com", "Jane", "Smith"),
-                createUser("bob@example.com", "Bob", "Johnson"),
-                createUser("alice@example.com", "Alice", "Brown")
+                createUser("john@example.com", "Джон", "Иванов"),
+                createUser("jane@example.com", "Джейн", "Кузнецова"),
+                createUser("bob@example.com", "Боб", "Дилан"),
+                createUser("alice@example.com", "Алиса", "Коричневая")
         );
         return userRepository.saveAll(users);
     }
