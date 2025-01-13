@@ -7,6 +7,7 @@ import itmo.course.coursework.dto.request.AddGroupMemberRequest;
 import itmo.course.coursework.dto.request.FindAllGroupMembersRequest;
 import itmo.course.coursework.dto.request.FindAllUserGroupsRequest;
 import itmo.course.coursework.dto.request.GroupCreateRequest;
+import itmo.course.coursework.dto.request.GroupUpdateRequest;
 import itmo.course.coursework.exception.BadRequestException;
 import itmo.course.coursework.service.GroupService;
 import itmo.course.coursework.service.UserService;
@@ -16,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import itmo.course.coursework.dto.response.GroupUserDTO;
+import itmo.course.coursework.dto.response.GroupDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,8 +64,21 @@ public class GroupController {
     }
 
     @GetMapping("/{groupId}")
-    public ResponseEntity<Group> getGroupById(@PathVariable Long groupId) {
-        return ResponseEntity.ok(groupService.findGroupById(groupId));
+    public ResponseEntity<GroupDTO> getGroup(@PathVariable Long groupId) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+        Group group = groupService.findGroupById(groupId);
+        
+        if (!groupService.isUserInGroup(group, currentUser)) {
+            throw new BadRequestException("Вы не являетесь членом этой группы");
+        }
+        
+        return ResponseEntity.ok(new GroupDTO(
+            group.getId(),
+            group.getName(),
+            group.getDescription(),
+            group.getCreatedBy().getFirstName() + " " + group.getCreatedBy().getLastName()
+        ));
     }
 
     @DeleteMapping("/{groupId}/delete")
@@ -94,9 +109,32 @@ public class GroupController {
         return ResponseEntity.ok(groupUsers.stream()
             .map(gu -> new GroupUserDTO(
                 gu.getUser().getId(),
-                gu.getUser().getFirstName() + " " + gu.getUser().getLastName(),
+                gu.getUser().getFirstName(),
+                gu.getUser().getLastName(),
                 gu.getRole().toString()
             ))
             .collect(Collectors.toList()));
+    }
+
+    @PutMapping("/{groupId}")
+    public ResponseEntity<GroupDTO> updateGroup(@PathVariable Long groupId, @RequestBody GroupUpdateRequest request) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+        Group group = groupService.findGroupById(groupId);
+        
+        if (!groupService.isUserAdmin(group, currentUser)) {
+            throw new BadRequestException("Только администратор может обновлять информацию о группе");
+        }
+        
+        group.setName(request.getName());
+        group.setDescription(request.getDescription());
+        
+        Group updatedGroup = groupService.updateGroup(group);
+        return ResponseEntity.ok(new GroupDTO(
+            updatedGroup.getId(),
+            updatedGroup.getName(),
+            updatedGroup.getDescription(),
+            updatedGroup.getCreatedBy().getFirstName() + " " + updatedGroup.getCreatedBy().getLastName()
+        ));
     }
 } 

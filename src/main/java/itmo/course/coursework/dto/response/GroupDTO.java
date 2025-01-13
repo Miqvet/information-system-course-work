@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GroupUserDTO {
+public class GroupDTO {
     private Long id;
-    private String firstName;
-    private String lastName;
-    private String role;
+    private String name;
+    private String description;
+    private String createdBy;
 } 

@@ -111,4 +111,12 @@ public class GroupService {
 
         return groupUserRepository.deleteGroupUserByGroupAndUserId(group, userId);
     }
+
+    public boolean isUserAdmin(Group group, User user) {
+        return groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, user, group);
+    }
+
+    public Group updateGroup(Group group) {
+        return groupRepository.save(group);
+    }
 }
