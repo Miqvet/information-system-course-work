@@ -41,14 +41,14 @@ public class TaskService {
         validateTaskRequest(request);
 
         Group group = groupService.findGroupById(request.getGroupId());
-        User user = userService.getUserById(request.getAssignedUserId());
-        if (!groupService.isUserInGroup(group, user)) {
-            throw new BadRequestException("Вы не являетесь членом этой группы");
-        }
+        // User user = userService.getUserById(request.getAssignedUserId());
+        // if (!groupService.isUserInGroup(group, user)) {
+        //     throw new BadRequestException("Вы не являетесь членом этой группы");
+        // }
 
-        if (!groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, user, group)) {
-            throw new BadRequestException("Создавать задачи может только админ группы");
-        }
+        // if (!groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, user, group)) {
+        //     throw new BadRequestException("Создавать задачи может только админ группы");
+        // }
 
         Task task = new Task();
         task.setTitle(request.getTitle());
@@ -58,7 +58,9 @@ public class TaskService {
         task.setIsRepeated(request.getIsRepeated() != null ? request.getIsRepeated() : false);
         task.setRepeatedPeriod(request.getRepeatedPeriod());
         task.setCategory(request.getCategory());
+        System.out.println(task);
         task.setGroup(group);
+        System.out.println(task);
 
         return taskRepository.save(task);
     }
