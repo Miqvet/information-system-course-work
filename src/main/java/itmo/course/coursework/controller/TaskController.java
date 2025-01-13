@@ -91,7 +91,9 @@ public class TaskController {
         }
         
         request.setGroupId(groupId);
-        return ResponseEntity.ok(taskService.createTask(request));
+        Task savedtask = taskService.createTask(request);
+        userTaskService.assignTaskToUserByFunction(savedtask.getId(), currentUser.getId(), 1);
+        return ResponseEntity.ok(savedtask);
     }
 
     @DeleteMapping("/{taskId}/delete_user_task/{userId}")
