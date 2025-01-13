@@ -7,7 +7,7 @@ import itmo.course.coursework.repository.GroupUserRepository;
 import itmo.course.coursework.repository.TaskRepository;
 import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,7 +46,7 @@ public class TaskService {
             throw new BadRequestException("Вы не являетесь членом этой группы");
         }
 
-        if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN , user,group)) {
+        if (!groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, user, group)) {
             throw new BadRequestException("Создавать задачи может только админ группы");
         }
 
@@ -101,8 +101,19 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public void deleteTask(Long id) {
+    public boolean deleteTask(Long id) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userService.findByEmail(userEmail);
+
+        Task task = getTaskById(id);
+        if (!groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, task.getGroup())) {
+            throw new BadRequestException("Только администратор группы может удалять задачи");
+        }
+
+        userTaskRepository.deleteByTaskId(id);
         taskRepository.deleteById(id);
+
+        return true;
     }
 
     public List<UserTask> getTasksByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {

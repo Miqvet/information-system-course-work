@@ -1,5 +1,6 @@
 package itmo.course.coursework.dto.response;
 
+import itmo.course.coursework.domain.Group;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 public class UserTaskDTO {
     private Long id;
     private Long taskId;
-    private Long group;
+    private Group group;
     private String title;
     private String description;
     private Integer priority;

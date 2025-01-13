@@ -67,7 +67,7 @@ public class UserTaskService {
     }
 
     @Transactional
-    public UserTask updateTaskStatus(Long taskId, Long userId, boolean completionStatus) {
+    public boolean updateTaskStatus(Long taskId, Long userId, boolean completionStatus) {
         UserTask userTask = getUserTask(taskId, userId);
         
         if (!userTask.getUser().getId().equals(userId)) {
@@ -75,7 +75,8 @@ public class UserTaskService {
         }
         
         userTask.setCompletionStatus(completionStatus);
-        return userTaskRepository.save(userTask);
+        userTaskRepository.save(userTask);
+        return true;
     }
 
     @Transactional
@@ -90,7 +91,7 @@ public class UserTaskService {
         return userTasks.stream().map(userTask -> UserTaskDTO.builder()
                 .id(userTask.getId())
                 .taskId(userTask.getTask().getId())
-                .group(userTask.getTask().getGroup().getId())
+                .group(userTask.getTask().getGroup())
                 .title(userTask.getTask().getTitle())
                 .description(userTask.getTask().getDescription())
                 .deadline(userTask.getTask().getDeadline())
@@ -129,7 +130,7 @@ public class UserTaskService {
         User currentUser = userService.findByEmail(userEmail);
 
         UserTask userTask = getUserTask(taskId, userId);
-        if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, userTask.getTask().getGroup())) {
+        if (!groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN, currentUser, userTask.getTask().getGroup())) {
             throw new BadRequestException("Только администратор группы может удалять задачи");
         }
 

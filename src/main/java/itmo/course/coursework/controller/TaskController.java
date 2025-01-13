@@ -61,11 +61,13 @@ public class TaskController {
     }
 
     @PutMapping("/{taskId}/complete")
-    public ResponseEntity<UserTask> completeTask(@PathVariable Long taskId) {
+    public ResponseEntity<Boolean> completeTask(@PathVariable Long taskId) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userService.findByEmail(userEmail);
+        User user = userService.findByEmail(userEmail);
+
+        UserTask userTask = userTaskService.getUserTask(taskId, user.getId());
         
-        return ResponseEntity.ok(userTaskService.updateTaskStatus(taskId, currentUser.getId(), true));
+        return ResponseEntity.ok(userTaskService.updateTaskStatus(userTask.getId(), user.getId(), true));
     }
 
     @PostMapping("/{taskId}/assign/{userId}")
@@ -97,5 +99,10 @@ public class TaskController {
             @PathVariable Long taskId,
             @PathVariable Long userId) {
         return ResponseEntity.ok(userTaskService.deleteUserTask(taskId, userId));
+    }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Boolean> deleteTask(@PathVariable Long taskId) {
+        return ResponseEntity.ok(taskService.deleteTask(taskId));
     }
 } 

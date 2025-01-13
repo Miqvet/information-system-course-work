@@ -23,6 +23,8 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Long> {
 
     List<UserTask> findByTaskDeadlineBetweenAndCompletionStatusFalse(LocalDateTime start, LocalDateTime end);
 
+    void deleteByTaskId(Long taskId);
+
     @Query(value = "SELECT assign_task_to_user(:taskId, :userId, :priority)", nativeQuery = true)
     boolean assignTaskToUser(@Param("taskId") Long taskId,
                              @Param("userId") Long userId,
