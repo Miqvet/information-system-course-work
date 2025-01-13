@@ -36,19 +36,9 @@ public class UserTaskService {
     public UserTask assignTaskToUser(Long taskId, Long userId) {
         Task task = taskService.getTaskById(taskId);
         User user = userService.getUserById(userId);
-        
-        if (!groupService.isUserInGroup(task.getGroup(), user)) {
-            throw new BadRequestException("Пользователь не является членом группы задачи");
-        }
+
         if (groupUserRepository.existsByRoleAndUserAndGroup(GroupUserRole.ADMIN , user, task.getGroup())) {
             throw new BadRequestException("Назначать задачи может только админ группы");
-        }
-
-
-        Optional<UserTask> existingAssignment = userTaskRepository.findUserTaskByUserAndTask(user, task);
-            
-        if (existingAssignment.isPresent()) {
-            throw new BadRequestException("Задача уже назначена этому пользователю");
         }
 
         UserTask userTask = new UserTask();

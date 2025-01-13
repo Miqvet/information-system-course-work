@@ -91,7 +91,6 @@ public class GroupController {
     public ResponseEntity<Boolean> deleteMember(
             @PathVariable Long groupId,
             @PathVariable Long userId) {
-        System.out.println(groupId + " " + userId);
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByEmail(userEmail);
         Group group = groupService.findGroupById(groupId);
@@ -153,9 +152,6 @@ public class GroupController {
         @PathVariable Long groupId,
         @PathVariable Long userId,
         @RequestBody Map<String, String> request) {
-        System.out.println(groupId + " " + userId);
-        System.out.println(request.get("role"));
-        System.out.println(request);
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByEmail(userEmail);
         Group group = groupService.findGroupById(groupId);

@@ -14,7 +14,7 @@ public class Comment {
     @Column
     private Long id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(optional = false)
     private Task task;
 
     @ManyToOne(optional = false)

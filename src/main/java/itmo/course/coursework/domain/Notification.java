@@ -20,7 +20,7 @@ public class Notification {
     @Column(columnDefinition = "text")
     private String description;
 
-    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(optional = false)
     private UserTask userTask;
 
     @Column(nullable = false)

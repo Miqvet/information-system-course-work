@@ -14,10 +14,10 @@ public class UserTask {
     @Column
     private Long id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(optional = false)
     private Task task;
 
-    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(optional = false)
     @JsonIgnore
     private User user;
 

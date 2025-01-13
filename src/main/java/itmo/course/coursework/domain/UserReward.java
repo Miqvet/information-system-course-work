@@ -15,10 +15,10 @@ public class UserReward {
     @Column
     private Long id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(optional = false)
     private Reward reward;
 
-    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(optional = false)
     @JsonIgnore
     private User user;
 

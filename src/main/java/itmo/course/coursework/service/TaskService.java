@@ -60,9 +60,7 @@ public class TaskService {
         task.setIsRepeated(request.getIsRepeated() != null ? request.getIsRepeated() : false);
         task.setRepeatedPeriod(request.getRepeatedPeriod());
         task.setCategory(request.getCategory());
-        System.out.println(task);
         task.setGroup(group);
-        System.out.println(task);
 
         return taskRepository.save(task);
     }
