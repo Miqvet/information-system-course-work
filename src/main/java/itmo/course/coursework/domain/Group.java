@@ -1,5 +1,6 @@
 package itmo.course.coursework.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public class Group {
     private String description;
 
     @ManyToOne(optional = false)
+    @JsonIgnore
     private User createdBy;
 
     @Column

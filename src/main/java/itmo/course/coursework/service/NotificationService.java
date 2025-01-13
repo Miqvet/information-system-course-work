@@ -4,11 +4,11 @@ import itmo.course.coursework.domain.Notification;
 import itmo.course.coursework.domain.Task;
 import itmo.course.coursework.domain.User;
 import itmo.course.coursework.domain.UserTask;
+import itmo.course.coursework.dto.response.NotificationDTO;
 import itmo.course.coursework.repository.NotificationRepository;
 import itmo.course.coursework.repository.TaskRepository;
 import itmo.course.coursework.repository.UserTaskRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -58,5 +58,16 @@ public class NotificationService {
         notificationRepository.save(notification);
 
         emailService.sendEmail("your_mom@mail.com", user.getEmail(), subject, message);
+    }
+
+    public List<NotificationDTO> findAllUserNotifications(User user) {
+        List<Notification> notifications = notificationRepository.findAllByUserTaskUser(user);
+        return notifications.stream().map(notification -> NotificationDTO.builder()
+                .userTaskId(notification.getUserTask().getId())
+                .groupId(notification.getUserTask().getTask().getGroup().getId())
+                .title(notification.getTitle())
+                .description(notification.getDescription())
+                .date(notification.getDate())
+                .build()).toList();
     }
 }
